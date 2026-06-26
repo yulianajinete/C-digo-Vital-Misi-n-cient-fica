@@ -1,0 +1,1961 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CÓDIGO VITAL: Misión de Rescate del Cuerpo Humano</title>
+<style>
+/* ============================================================
+   CÓDIGO VITAL — Escape Room Educativo
+   Autor: Generado para Yuliana · Ciencias Naturales 4°-5°
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Nunito:wght@400;600;700;800&display=swap');
+
+/* ── VARIABLES GLOBALES ────────────────────────────────────── */
+:root {
+  --navy:       #050B1F;
+  --deep-blue:  #0A1535;
+  --mid-blue:   #0D2060;
+  --accent:     #00E5FF;
+  --accent2:    #7B2FFF;
+  --gold:       #FFD700;
+  --green:      #00FF88;
+  --red:        #FF4466;
+  --orange:     #FF8C00;
+  --white:      #F0F8FF;
+  --glass:      rgba(0,229,255,0.08);
+  --glass-border: rgba(0,229,255,0.25);
+  --radius:     16px;
+  --shadow:     0 8px 32px rgba(0,229,255,0.15);
+}
+
+/* ── RESET & BASE ──────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Nunito', 'Arial Rounded MT Bold', sans-serif;
+  background: var(--navy);
+  color: var(--white);
+  min-height: 100vh;
+  overflow-x: hidden;
+  user-select: none;
+}
+
+/* ── PANTALLAS ─────────────────────────────────────────────── */
+.screen {
+  display: none;
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+  animation: fadeIn 0.6s ease;
+}
+.screen.active { display: flex; flex-direction: column; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ── ESTRELLAS DE FONDO ────────────────────────────────────── */
+.starfield {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(123,47,255,0.15) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 20%, rgba(0,229,255,0.10) 0%, transparent 60%),
+    var(--navy);
+}
+.star {
+  position: absolute;
+  border-radius: 50%;
+  background: white;
+  animation: twinkle var(--d,3s) var(--delay,0s) infinite alternate;
+}
+@keyframes twinkle { from { opacity: 0.2; transform: scale(0.8); } to { opacity: 1; transform: scale(1.2); } }
+
+/* ── PARTÍCULAS FLOTANTES ──────────────────────────────────── */
+.particles {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0.4;
+  animation: floatUp var(--dur, 8s) var(--del, 0s) infinite linear;
+}
+@keyframes floatUp {
+  0%   { transform: translateY(110vh) scale(0); opacity: 0; }
+  10%  { opacity: 0.4; }
+  90%  { opacity: 0.4; }
+  100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+}
+
+/* ── CONTENIDO CENTRAL ─────────────────────────────────────── */
+.content {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  flex: 1;
+}
+
+/* ── NAVE ESPACIAL (SVG inline) ────────────────────────────── */
+.ship-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 100;
+  width: 90px;
+  animation: shipFloat 4s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes shipFloat {
+  0%,100% { transform: translateY(0) rotate(-5deg); }
+  50%      { transform: translateY(-14px) rotate(5deg); }
+}
+.ship-container .engine-glow {
+  animation: enginePulse 0.8s ease-in-out infinite alternate;
+}
+@keyframes enginePulse {
+  from { opacity: 0.4; r: 4; }
+  to   { opacity: 1;   r: 7; }
+}
+
+/* ── BARRA DE ENERGÍA ──────────────────────────────────────── */
+.energy-bar {
+  position: fixed;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(5,11,31,0.85);
+  border: 1px solid var(--glass-border);
+  border-radius: 30px;
+  padding: 6px 16px;
+  backdrop-filter: blur(10px);
+}
+.energy-label {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.65rem;
+  color: var(--accent);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.energy-track {
+  width: 120px;
+  height: 10px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+}
+.energy-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--green), var(--accent));
+  border-radius: 10px;
+  transition: width 0.8s ease;
+  box-shadow: 0 0 10px var(--green);
+}
+.energy-pct {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.65rem;
+  color: var(--green);
+  min-width: 38px;
+}
+
+/* ── MISIÓN BADGE ──────────────────────────────────────────── */
+.mission-badge {
+  position: fixed;
+  top: 14px;
+  right: 20px;
+  z-index: 200;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.6rem;
+  color: var(--accent);
+  background: rgba(5,11,31,0.85);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 6px 14px;
+  letter-spacing: 2px;
+  backdrop-filter: blur(10px);
+}
+
+/* ── TARJETA DE CÓDIGO ─────────────────────────────────────── */
+.code-card {
+  position: fixed;
+  top: 14px;
+  left: 20px;
+  z-index: 200;
+  background: rgba(5,11,31,0.85);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 8px 14px;
+  backdrop-filter: blur(10px);
+}
+.code-card-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.55rem;
+  color: var(--accent);
+  letter-spacing: 2px;
+  margin-bottom: 4px;
+  text-align: center;
+}
+.code-slots {
+  display: flex;
+  gap: 4px;
+}
+.code-slot {
+  width: 28px;
+  height: 32px;
+  background: rgba(0,229,255,0.08);
+  border: 1.5px solid rgba(0,229,255,0.3);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Orbitron', monospace;
+  font-size: 1rem;
+  font-weight: 900;
+  color: var(--gold);
+  transition: all 0.4s;
+}
+.code-slot.filled {
+  border-color: var(--gold);
+  background: rgba(255,215,0,0.12);
+  box-shadow: 0 0 10px rgba(255,215,0,0.3);
+  animation: slotPop 0.4s ease;
+}
+@keyframes slotPop { 0%,100%{transform:scale(1)} 50%{transform:scale(1.25)} }
+
+/* ── BOTONES ───────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 36px;
+  border: none;
+  border-radius: 50px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  position: relative;
+  overflow: hidden;
+}
+.btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.15);
+  opacity: 0;
+  transition: opacity 0.2s;
+  border-radius: inherit;
+}
+.btn:hover::after { opacity: 1; }
+.btn:active { transform: scale(0.96); }
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent2), #4A00E0);
+  color: white;
+  box-shadow: 0 6px 24px rgba(123,47,255,0.45);
+}
+.btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 32px rgba(123,47,255,0.6); }
+
+.btn-accent {
+  background: linear-gradient(135deg, #00B4D8, var(--accent));
+  color: var(--navy);
+  box-shadow: 0 6px 24px rgba(0,229,255,0.35);
+}
+.btn-accent:hover { transform: translateY(-3px); box-shadow: 0 10px 32px rgba(0,229,255,0.55); }
+
+.btn-gold {
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  color: var(--navy);
+  box-shadow: 0 6px 24px rgba(255,215,0,0.4);
+}
+.btn-gold:hover { transform: translateY(-3px); box-shadow: 0 10px 32px rgba(255,215,0,0.6); }
+
+.btn-sm {
+  padding: 9px 22px;
+  font-size: 0.88rem;
+  letter-spacing: 1px;
+}
+
+/* ── TARJETA MISIÓN ────────────────────────────────────────── */
+.mission-card {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  padding: 28px 32px;
+  max-width: 680px;
+  width: 100%;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(12px);
+}
+.mission-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: var(--accent);
+  text-align: center;
+  margin-bottom: 6px;
+  text-shadow: 0 0 20px rgba(0,229,255,0.5);
+}
+.mission-sub {
+  text-align: center;
+  font-size: 0.88rem;
+  color: rgba(240,248,255,0.6);
+  margin-bottom: 22px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.mission-scenario {
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  font-size: 0.93rem;
+  line-height: 1.6;
+}
+.mission-question {
+  font-size: 1.08rem;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 18px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* ── OPCIONES MÚLTIPLES ────────────────────────────────────── */
+.options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.option-btn {
+  background: rgba(0,229,255,0.06);
+  border: 2px solid rgba(0,229,255,0.2);
+  border-radius: 12px;
+  padding: 14px 18px;
+  color: var(--white);
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s;
+  text-align: center;
+}
+.option-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: rgba(0,229,255,0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0,229,255,0.2);
+}
+.option-btn.correct {
+  border-color: var(--green);
+  background: rgba(0,255,136,0.15);
+  box-shadow: 0 0 20px rgba(0,255,136,0.3);
+  animation: correctPulse 0.5s ease;
+}
+.option-btn.wrong {
+  border-color: var(--red);
+  background: rgba(255,68,102,0.12);
+  animation: shake 0.4s ease;
+}
+@keyframes correctPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.04)} }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+
+/* ── FEEDBACK ──────────────────────────────────────────────── */
+.feedback {
+  display: none;
+  border-radius: 12px;
+  padding: 14px 20px;
+  margin-bottom: 16px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  text-align: center;
+  animation: fadeIn 0.4s ease;
+}
+.feedback.success {
+  display: block;
+  background: rgba(0,255,136,0.12);
+  border: 1.5px solid var(--green);
+  color: #00FF88;
+}
+.feedback.error {
+  display: block;
+  background: rgba(255,68,102,0.10);
+  border: 1.5px solid var(--red);
+  color: #FF4466;
+}
+
+/* ── DRAG & DROP ───────────────────────────────────────────── */
+.drag-zone {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.drag-item {
+  background: rgba(0,229,255,0.06);
+  border: 2px solid rgba(0,229,255,0.2);
+  border-radius: 10px;
+  padding: 12px 18px;
+  cursor: grab;
+  font-weight: 700;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.2s;
+  user-select: none;
+}
+.drag-item:hover { border-color: var(--accent); background: rgba(0,229,255,0.12); }
+.drag-item.dragging { opacity: 0.4; border-color: var(--accent2); border-style: dashed; }
+.drag-item.drag-over { border-color: var(--gold); transform: scale(1.02); }
+.drag-handle { color: var(--accent); font-size: 1.1rem; }
+.drag-num { font-family: 'Orbitron', monospace; color: var(--gold); min-width: 24px; font-size: 0.85rem; }
+
+/* ── INPUT CÓDIGO FINAL ────────────────────────────────────── */
+.code-input-row {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin: 20px 0;
+}
+.code-digit-input {
+  width: 52px;
+  height: 64px;
+  background: rgba(0,229,255,0.06);
+  border: 2px solid rgba(0,229,255,0.3);
+  border-radius: 12px;
+  text-align: center;
+  font-family: 'Orbitron', monospace;
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: var(--gold);
+  outline: none;
+  transition: all 0.2s;
+}
+.code-digit-input:focus {
+  border-color: var(--accent);
+  background: rgba(0,229,255,0.12);
+  box-shadow: 0 0 20px rgba(0,229,255,0.2);
+}
+
+/* ── DIPLOMA ───────────────────────────────────────────────── */
+.diploma {
+  background: linear-gradient(135deg, #1a0a00, #2d1a00);
+  border: 3px solid var(--gold);
+  border-radius: 20px;
+  padding: 36px;
+  max-width: 560px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 0 60px rgba(255,215,0,0.3), inset 0 0 40px rgba(255,165,0,0.05);
+  position: relative;
+  overflow: hidden;
+}
+.diploma::before {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  border: 1px solid rgba(255,215,0,0.3);
+  border-radius: 14px;
+  pointer-events: none;
+}
+.diploma-seal {
+  font-size: 3.5rem;
+  margin-bottom: 8px;
+  animation: sealPulse 2s ease-in-out infinite;
+}
+@keyframes sealPulse { 0%,100%{transform:scale(1) rotate(-5deg)} 50%{transform:scale(1.08) rotate(5deg)} }
+.diploma-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 1rem;
+  color: var(--gold);
+  letter-spacing: 3px;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+.diploma-name {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: var(--white);
+  margin: 16px 0;
+  text-shadow: 0 0 20px rgba(255,215,0,0.5);
+}
+.diploma-text {
+  font-size: 0.88rem;
+  color: rgba(255,215,0,0.8);
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+.diploma-stars { font-size: 1.4rem; letter-spacing: 6px; }
+
+/* ── CONFETTI ──────────────────────────────────────────────── */
+.confetti-piece {
+  position: fixed;
+  width: 10px;
+  height: 14px;
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: 9999;
+  animation: confettiFall var(--dur,3s) var(--del,0s) ease-in forwards;
+}
+@keyframes confettiFall {
+  0%   { transform: translateY(-20px) rotate(0deg); opacity:1; }
+  100% { transform: translateY(110vh) rotate(720deg); opacity:0; }
+}
+
+/* ── PORTAL PUERTA ─────────────────────────────────────────── */
+.portal-door {
+  width: 160px;
+  height: 220px;
+  background: linear-gradient(180deg, #1a0030 0%, #0D2060 100%);
+  border: 4px solid var(--accent2);
+  border-radius: 80px 80px 8px 8px;
+  margin: 0 auto 24px;
+  position: relative;
+  box-shadow: 0 0 40px rgba(123,47,255,0.5), inset 0 0 40px rgba(123,47,255,0.1);
+  transition: all 1s ease;
+  overflow: hidden;
+}
+.portal-door.open {
+  background: radial-gradient(ellipse at center, #FFD700 0%, var(--green) 40%, var(--accent) 100%);
+  box-shadow: 0 0 80px rgba(255,215,0,0.7), 0 0 160px rgba(0,255,136,0.4);
+  transform: scale(1.1);
+}
+.portal-door-inner {
+  position: absolute;
+  inset: 8px;
+  border: 2px solid rgba(255,255,255,0.15);
+  border-radius: 70px 70px 4px 4px;
+}
+.portal-grill {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 30px 20px;
+}
+.portal-grill-bar {
+  height: 3px;
+  background: rgba(0,229,255,0.3);
+  border-radius: 2px;
+  box-shadow: 0 0 8px rgba(0,229,255,0.4);
+}
+
+/* ── SISTEMA TAGS ──────────────────────────────────────────── */
+.system-tag {
+  display: inline-block;
+  padding: 4px 14px;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+
+/* ── ESCENARIOS POR SISTEMA ────────────────────────────────── */
+/* Óseo */
+.bg-oseo { background: radial-gradient(ellipse at top, #1a0a2e 0%, #050B1F 100%); }
+.scenario-oseo { background: linear-gradient(135deg, rgba(150,100,50,0.15), rgba(100,70,30,0.1)); border: 1px solid rgba(200,160,80,0.3); }
+.tag-oseo { background: rgba(200,160,80,0.2); color: #D4A04A; border: 1px solid rgba(200,160,80,0.4); }
+
+/* Muscular */
+.bg-muscular { background: radial-gradient(ellipse at top, #2a0a0a 0%, #050B1F 100%); }
+.scenario-muscular { background: linear-gradient(135deg, rgba(200,50,50,0.15), rgba(150,30,30,0.1)); border: 1px solid rgba(255,100,100,0.3); }
+.tag-muscular { background: rgba(200,50,50,0.2); color: #FF7070; border: 1px solid rgba(255,100,100,0.4); }
+
+/* Digestivo */
+.bg-digestivo { background: radial-gradient(ellipse at top, #1a1a00 0%, #050B1F 100%); }
+.scenario-digestivo { background: linear-gradient(135deg, rgba(100,180,50,0.15), rgba(80,140,30,0.1)); border: 1px solid rgba(150,220,80,0.3); }
+.tag-digestivo { background: rgba(100,180,50,0.2); color: #90D040; border: 1px solid rgba(150,220,80,0.4); }
+
+/* Respiratorio */
+.bg-respiratorio { background: radial-gradient(ellipse at top, #001a2a 0%, #050B1F 100%); }
+.scenario-respiratorio { background: linear-gradient(135deg, rgba(0,180,255,0.15), rgba(0,120,200,0.1)); border: 1px solid rgba(0,220,255,0.3); }
+.tag-respiratorio { background: rgba(0,180,255,0.2); color: #60DFFF; border: 1px solid rgba(0,220,255,0.4); }
+
+/* Circulatorio */
+.bg-circulatorio { background: radial-gradient(ellipse at top, #2a0010 0%, #050B1F 100%); }
+.scenario-circulatorio { background: linear-gradient(135deg, rgba(220,30,70,0.15), rgba(180,10,50,0.1)); border: 1px solid rgba(255,60,100,0.3); }
+.tag-circulatorio { background: rgba(220,30,70,0.2); color: #FF6090; border: 1px solid rgba(255,60,100,0.4); }
+
+/* Nervioso */
+.bg-nervioso { background: radial-gradient(ellipse at top, #0a0020 0%, #050B1F 100%); }
+.scenario-nervioso { background: linear-gradient(135deg, rgba(100,0,255,0.15), rgba(60,0,200,0.1)); border: 1px solid rgba(160,80,255,0.3); }
+.tag-nervioso { background: rgba(100,0,255,0.2); color: #C070FF; border: 1px solid rgba(160,80,255,0.4); }
+
+/* ── INSTRUCCIÓN DEL CÓDIGO ────────────────────────────────── */
+.fragment-hint {
+  background: rgba(255,215,0,0.08);
+  border: 1px solid rgba(255,215,0,0.3);
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 0.85rem;
+  color: rgba(255,215,0,0.9);
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+
+/* ── CLAVE CONTADOR (M6) ───────────────────────────────────── */
+.letter-counter {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin: 12px 0;
+}
+.letter-box {
+  width: 40px;
+  height: 44px;
+  background: rgba(160,80,255,0.1);
+  border: 2px solid rgba(160,80,255,0.3);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Orbitron', monospace;
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: var(--white);
+  transition: all 0.3s;
+}
+.letter-box.highlight {
+  border-color: var(--accent2);
+  background: rgba(160,80,255,0.2);
+  box-shadow: 0 0 14px rgba(160,80,255,0.4);
+}
+.letter-num {
+  font-size: 0.55rem;
+  color: rgba(160,80,255,0.7);
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+}
+
+/* ── MAPA DE PROGRESO ──────────────────────────────────────── */
+.progress-map {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.prog-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+.prog-dot {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid rgba(0,229,255,0.2);
+  background: rgba(0,229,255,0.04);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  transition: all 0.4s;
+}
+.prog-dot.done {
+  border-color: var(--green);
+  background: rgba(0,255,136,0.12);
+  box-shadow: 0 0 14px rgba(0,255,136,0.3);
+}
+.prog-dot.current {
+  border-color: var(--accent);
+  background: rgba(0,229,255,0.12);
+  box-shadow: 0 0 14px rgba(0,229,255,0.4);
+  animation: pingDot 1.5s ease-in-out infinite;
+}
+@keyframes pingDot { 0%,100%{box-shadow:0 0 14px rgba(0,229,255,0.4)} 50%{box-shadow:0 0 28px rgba(0,229,255,0.7)} }
+.prog-label {
+  font-size: 0.55rem;
+  color: rgba(240,248,255,0.4);
+  text-align: center;
+  letter-spacing: 0.5px;
+  max-width: 50px;
+  line-height: 1.2;
+}
+
+/* ── HEADLINE SCREENS ──────────────────────────────────────── */
+.big-title {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(1.6rem, 5vw, 3rem);
+  font-weight: 900;
+  text-align: center;
+  line-height: 1.2;
+  letter-spacing: 2px;
+  text-shadow: 0 0 40px rgba(0,229,255,0.4);
+}
+.big-title .line1 { color: var(--accent); display: block; }
+.big-title .line2 { color: var(--white); display: block; }
+.big-title .line3 { color: var(--gold); display: block; font-size: 0.6em; letter-spacing: 6px; }
+
+.subtitle {
+  text-align: center;
+  color: rgba(240,248,255,0.7);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+/* ── RESPONSIVE ────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .mission-card { padding: 20px 16px; }
+  .options-grid { grid-template-columns: 1fr; }
+  .code-input-row { gap: 5px; }
+  .code-digit-input { width: 42px; height: 54px; font-size: 1.3rem; }
+  .ship-container { width: 64px; bottom: 12px; right: 12px; }
+  .code-card { padding: 6px 10px; }
+  .code-slot { width: 22px; height: 26px; font-size: 0.8rem; }
+  .energy-track { width: 80px; }
+  .progress-map { gap: 4px; }
+  .prog-dot { width: 30px; height: 30px; font-size: 0.9rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- ╔══════════════════════════════════════════════════════════╗
+     ║  FONDO ESTRELLADO                                       ║
+     ╚══════════════════════════════════════════════════════════╝ -->
+<div class="starfield" id="starfield"></div>
+<div class="particles" id="particles"></div>
+
+<!-- ╔══════════════════════════════════════════════════════════╗
+     ║  BARRA DE ENERGÍA (siempre visible desde misión 1)      ║
+     ╚══════════════════════════════════════════════════════════╝ -->
+<div class="energy-bar" id="energy-bar" style="display:none">
+  <span class="energy-label">⚡ Energía</span>
+  <div class="energy-track">
+    <div class="energy-fill" id="energy-fill" style="width:100%"></div>
+  </div>
+  <span class="energy-pct" id="energy-pct">100%</span>
+</div>
+
+<!-- ╔══════════════════════════════════════════════════════════╗
+     ║  BADGE DE MISIÓN                                        ║
+     ╚══════════════════════════════════════════════════════════╝ -->
+<div class="mission-badge" id="mission-badge" style="display:none">MISIÓN <span id="badge-num">1</span>/6</div>
+
+<!-- ╔══════════════════════════════════════════════════════════╗
+     ║  TARJETA CÓDIGO (siempre visible)                       ║
+     ╚══════════════════════════════════════════════════════════╝ -->
+<div class="code-card" id="code-card" style="display:none">
+  <div class="code-card-title">🔑 CÓDIGO</div>
+  <div class="code-slots" id="code-slots">
+    <div class="code-slot" id="slot0">_</div>
+    <div class="code-slot" id="slot1">_</div>
+    <div class="code-slot" id="slot2">_</div>
+    <div class="code-slot" id="slot3">_</div>
+    <div class="code-slot" id="slot4">_</div>
+    <div class="code-slot" id="slot5">_</div>
+  </div>
+</div>
+
+<!-- ╔══════════════════════════════════════════════════════════╗
+     ║  NAVE ESPACIAL (siempre visible)                        ║
+     ╚══════════════════════════════════════════════════════════╝ -->
+<div class="ship-container" id="ship-widget" style="display:none">
+  <svg viewBox="0 0 90 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Body -->
+    <ellipse cx="45" cy="52" rx="26" ry="36" fill="url(#bodyGrad)"/>
+    <!-- Cockpit glass -->
+    <ellipse cx="45" cy="34" rx="14" ry="18" fill="url(#cockpitGrad)" opacity="0.9"/>
+    <ellipse cx="40" cy="28" rx="5" ry="7" fill="rgba(255,255,255,0.4)"/>
+    <!-- Wings -->
+    <path d="M19 62 L6 80 L24 72 Z" fill="#7B2FFF" opacity="0.8"/>
+    <path d="M71 62 L84 80 L66 72 Z" fill="#7B2FFF" opacity="0.8"/>
+    <!-- Wing detail -->
+    <path d="M19 62 L6 80 L24 72 Z" fill="none" stroke="#00E5FF" stroke-width="1" opacity="0.5"/>
+    <path d="M71 62 L84 80 L66 72 Z" fill="none" stroke="#00E5FF" stroke-width="1" opacity="0.5"/>
+    <!-- Stripe -->
+    <rect x="38" y="50" width="14" height="3" rx="1.5" fill="#00E5FF" opacity="0.7"/>
+    <rect x="38" y="58" width="14" height="2" rx="1" fill="#00E5FF" opacity="0.4"/>
+    <!-- Engines -->
+    <ellipse cx="35" cy="84" rx="7" ry="5" fill="#1a1a2e"/>
+    <ellipse cx="55" cy="84" rx="7" ry="5" fill="#1a1a2e"/>
+    <!-- Engine glow -->
+    <ellipse cx="35" cy="86" rx="5" ry="3" fill="#00E5FF" class="engine-glow"/>
+    <ellipse cx="55" cy="86" rx="5" ry="3" fill="#7B2FFF" class="engine-glow"/>
+    <!-- Flame -->
+    <ellipse cx="35" cy="93" rx="4" ry="7" fill="url(#flame1)" opacity="0.9"/>
+    <ellipse cx="55" cy="93" rx="4" ry="7" fill="url(#flame2)" opacity="0.9"/>
+    <!-- Defs -->
+    <defs>
+      <radialGradient id="bodyGrad" cx="40%" cy="30%">
+        <stop offset="0%" stop-color="#2D4A8A"/>
+        <stop offset="100%" stop-color="#0A1535"/>
+      </radialGradient>
+      <radialGradient id="cockpitGrad" cx="35%" cy="25%">
+        <stop offset="0%" stop-color="#80EEFF"/>
+        <stop offset="50%" stop-color="#00B4D8"/>
+        <stop offset="100%" stop-color="#0077B6"/>
+      </radialGradient>
+      <linearGradient id="flame1" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#FFD700"/>
+        <stop offset="100%" stop-color="#FF6600" stop-opacity="0"/>
+      </linearGradient>
+      <linearGradient id="flame2" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#00E5FF"/>
+        <stop offset="100%" stop-color="#7B2FFF" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+  </svg>
+</div>
+
+<!-- ╔══════════════════════════════════════════════════════════╗
+     ║  PANTALLA 0: PORTADA                                    ║
+     ╚══════════════════════════════════════════════════════════╝ -->
+<div id="screen-intro" class="screen active">
+  <div class="content" style="gap:28px; text-align:center; padding-top:80px;">
+    <!-- Logo nave grande -->
+    <div style="animation:shipFloat 3s ease-in-out infinite">
+      <svg width="130" height="160" viewBox="0 0 90 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="45" cy="52" rx="26" ry="36" fill="url(#b2)"/>
+        <ellipse cx="45" cy="34" rx="14" ry="18" fill="url(#c2)" opacity="0.9"/>
+        <ellipse cx="40" cy="28" rx="5" ry="7" fill="rgba(255,255,255,0.4)"/>
+        <path d="M19 62 L6 80 L24 72 Z" fill="#7B2FFF" opacity="0.85"/>
+        <path d="M71 62 L84 80 L66 72 Z" fill="#7B2FFF" opacity="0.85"/>
+        <rect x="38" y="50" width="14" height="3" rx="1.5" fill="#00E5FF" opacity="0.8"/>
+        <ellipse cx="35" cy="84" rx="7" ry="5" fill="#1a1a2e"/>
+        <ellipse cx="55" cy="84" rx="7" ry="5" fill="#1a1a2e"/>
+        <ellipse cx="35" cy="86" rx="5" ry="3" fill="#00E5FF"/>
+        <ellipse cx="55" cy="86" rx="5" ry="3" fill="#7B2FFF"/>
+        <ellipse cx="35" cy="93" rx="4" ry="7" fill="url(#f1)" opacity="0.9"/>
+        <ellipse cx="55" cy="93" rx="4" ry="7" fill="url(#f2)" opacity="0.9"/>
+        <defs>
+          <radialGradient id="b2" cx="40%" cy="30%"><stop offset="0%" stop-color="#2D4A8A"/><stop offset="100%" stop-color="#0A1535"/></radialGradient>
+          <radialGradient id="c2" cx="35%" cy="25%"><stop offset="0%" stop-color="#80EEFF"/><stop offset="50%" stop-color="#00B4D8"/><stop offset="100%" stop-color="#0077B6"/></radialGradient>
+          <linearGradient id="f1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FFD700"/><stop offset="100%" stop-color="#FF6600" stop-opacity="0"/></linearGradient>
+          <linearGradient id="f2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#00E5FF"/><stop offset="100%" stop-color="#7B2FFF" stop-opacity="0"/></linearGradient>
+        </defs>
+      </svg>
+    </div>
+
+    <h1 class="big-title">
+      <span class="line3">🔬 MISIÓN CIENTÍFICA 🔬</span>
+      <span class="line1">CÓDIGO</span>
+      <span class="line2">VITAL</span>
+    </h1>
+
+    <p class="subtitle">
+      <strong style="color:var(--gold)">Misión de Rescate del Cuerpo Humano</strong><br>
+      Año 2050 · Nave Científica · Exploración Interior
+    </p>
+
+    <button class="btn btn-primary" onclick="showScreen('screen-instrucciones')" style="font-size:1.15rem; padding:16px 44px">
+      🚀 INICIAR MISIÓN
+    </button>
+
+    <p style="font-size:0.75rem; color:rgba(240,248,255,0.35); letter-spacing:2px; text-transform:uppercase">
+      Ciencias Naturales · 4° y 5° Grado
+    </p>
+  </div>
+</div>
+
+<!-- ╔══════════════════════════════════════════════════════════╗
+     ║  PANTALLA 1: INSTRUCCIONES                              ║
+     ╚══════════════════════════════════════════════════════════╝ -->
+<div id="screen-instrucciones" class="screen">
+  <div class="content" style="gap:22px; padding-top:30px; padding-bottom:30px;">
+    <h2 style="font-family:'Orbitron',monospace; font-size:1.4rem; color:var(--accent); text-align:center; letter-spacing:2px">
+      📋 SITUACIÓN DE EMERGENCIA
+    </h2>
+
+    <div class="mission-card" style="max-width:720px">
+      <div style="background:rgba(255,68,102,0.08); border:1px solid rgba(255,68,102,0.3); border-radius:12px; padding:16px 20px; margin-bottom:18px;">
+        <p style="color:#FF4466; font-weight:800; font-size:0.9rem; text-align:center; margin-bottom:8px">⚠️ ALERTA BIOELÉCTRICA — NAVE CÓDIGO VITAL</p>
+        <p style="font-size:0.88rem; line-height:1.7; color:rgba(240,248,255,0.85)">
+          Año <strong style="color:var(--gold)">2050.</strong> Eres parte de un equipo de jóvenes científicos 
+          que fue <strong>miniaturizado</strong> para explorar el cuerpo humano a bordo de la nave 
+          <em style="color:var(--accent)">Código Vital</em>. Durante la misión, 
+          una <strong>tormenta bioeléctrica</strong> dañó el sistema de navegación y quedaron 
+          <strong>atrapados dentro del organismo</strong>. 
+          <br><br>
+          La energía disminuye. Para escapar y salvar al paciente, deben recorrer los 
+          <strong style="color:var(--gold)">6 sistemas del cuerpo humano</strong>, 
+          resolver los desafíos científicos y recuperar los <strong>6 códigos del código maestro</strong>.
+        </p>
+      </div>
+
+      <p style="font-size:0.9rem; font-weight:800; color:var(--accent); margin-bottom:12px; text-align:center; letter-spacing:1px">🗺️ TU HOJA DE NAVEGACIÓN</p>
+
+      <div style="display:grid; gap:8px; margin-bottom:20px">
+        <div style="display:flex; align-items:center; gap:12px; background:rgba(200,160,80,0.08); border:1px solid rgba(200,160,80,0.25); border-radius:10px; padding:10px 14px;">
+          <span style="font-size:1.3rem">🦴</span>
+          <div style="flex:1"><strong>Misión 1:</strong> Sistema Óseo</div>
+          <div style="font-family:'Orbitron',monospace; font-size:0.75rem; color:#D4A04A; background:rgba(200,160,80,0.15); border-radius:6px; padding:3px 10px">DÍGITO 1</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:12px; background:rgba(200,50,50,0.08); border:1px solid rgba(200,50,50,0.25); border-radius:10px; padding:10px 14px;">
+          <span style="font-size:1.3rem">💪</span>
+          <div style="flex:1"><strong>Misión 2:</strong> Sistema Muscular</div>
+          <div style="font-family:'Orbitron',monospace; font-size:0.75rem; color:#FF7070; background:rgba(200,50,50,0.15); border-radius:6px; padding:3px 10px">DÍGITO 2</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:12px; background:rgba(100,180,50,0.08); border:1px solid rgba(100,180,50,0.25); border-radius:10px; padding:10px 14px;">
+          <span style="font-size:1.3rem">🍎</span>
+          <div style="flex:1"><strong>Misión 3:</strong> Sistema Digestivo</div>
+          <div style="font-family:'Orbitron',monospace; font-size:0.75rem; color:#90D040; background:rgba(100,180,50,0.15); border-radius:6px; padding:3px 10px">DÍGITO 3</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:12px; background:rgba(0,180,255,0.08); border:1px solid rgba(0,180,255,0.25); border-radius:10px; padding:10px 14px;">
+          <span style="font-size:1.3rem">🫁</span>
+          <div style="flex:1"><strong>Misión 4:</strong> Sistema Respiratorio</div>
+          <div style="font-family:'Orbitron',monospace; font-size:0.75rem; color:#60DFFF; background:rgba(0,180,255,0.15); border-radius:6px; padding:3px 10px">DÍGITO 4</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:12px; background:rgba(220,30,70,0.08); border:1px solid rgba(220,30,70,0.25); border-radius:10px; padding:10px 14px;">
+          <span style="font-size:1.3rem">❤️</span>
+          <div style="flex:1"><strong>Misión 5:</strong> Sistema Circulatorio</div>
+          <div style="font-family:'Orbitron',monospace; font-size:0.75rem; color:#FF6090; background:rgba(220,30,70,0.15); border-radius:6px; padding:3px 10px">DÍGITO 5</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:12px; background:rgba(100,0,255,0.08); border:1px solid rgba(100,0,255,0.25); border-radius:10px; padding:10px 14px;">
+          <span style="font-size:1.3rem">🧠</span>
+          <div style="flex:1"><strong>Misión 6:</strong> Sistema Nervioso</div>
+          <div style="font-family:'Orbitron',monospace; font-size:0.75rem; color:#C070FF; background:rgba(100,0,255,0.15); border-radius:6px; padding:3px 10px">DÍGITO 6</div>
+        </div>
+      </div>
+
+      <p style="font-size:0.82rem; color:rgba(240,248,255,0.55); text-align:center; margin-bottom:18px">
+        📝 Anota cada código en tu hoja. Al final ingresarás el código maestro de 6 dígitos.
+      </p>
+
+      <div style="text-align:center">
+        <button class="btn btn-accent" onclick="startMissions()">
+          🔭 COMENZAR EXPLORACIÓN
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ╔══════════════════════════════════════════════════════════╗
+     ║  MISIÓN 1: SISTEMA ÓSEO                                 ║
+     ╚══════════════════════════════════════════════════════════╝ -->
+<div id="screen-m1" class="screen bg-oseo">
+  <div class="content" style="gap:18px; padding-top:90px; padding-bottom:30px;">
+    <div class="progress-map" id="prog-m1"></div>
+    <div class="mission-card">
+      <span class="system-tag tag-oseo">🦴 Sistema Óseo</span>
+      <h2 class="mission-title">MISIÓN 1 — LAS CUEVAS DE LOS HUESOS</h2>
+      <p class="mission-sub">Explorando las cavernas óseas del esqueleto</p>
+
+      <div class="mission-scenario scenario-oseo">
+        <p style="font-size:0.88rem; line-height:1.7">
+          🦴 La nave Código Vital navega por enormes <strong>cuevas cristalinas</strong> formadas 
+          por huesos. Las paredes brillan con un tono marfil misterioso. El detector de la nave 
+          señala: <em style="color:#D4A04A">"Sistema Óseo identificado. Acceso al código
+          del sistema disponible."</em>
+        </p>
+      </div>
+
+      <div class="fragment-hint">
+        💡 <strong>Instrucción del código:</strong> La respuesta correcta tiene 3 dígitos. 
+        Toma solo el <strong>primer dígito</strong> de esa respuesta.
+      </div>
+
+      <p class="mission-question">
+        🔬 ¿Cuántos huesos tiene aproximadamente el cuerpo humano adulto?
+      </p>
+
+      <div class="options-grid" id="opts-m1">
+        <button class="option-btn" onclick="checkAnswer(1, this, false)">126 huesos</button>
+        <button class="option-btn" onclick="checkAnswer(1, this, true)">206 huesos</button>
+        <button class="option-btn" onclick="checkAnswer(1, this, false)">312 huesos</button>
+        <button class="option-btn" onclick="checkAnswer(1, this, false)">89 huesos</button>
+      </div>
+
+      <div class="feedback" id="fb-m1"></div>
+
+      <div style="text-align:center; display:none" id="next-m1">
+        <button class="btn btn-accent btn-sm" onclick="showScreen('screen-m2')">
+          💪 SIGUIENTE MISIÓN →
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ╔══════════════════════════════════════════════════════════╗
+     ║  MISIÓN 2: SISTEMA MUSCULAR                             ║
+     ╚══════════════════════════════════════════════════════════╝ -->
+<div id="screen-m2" class="screen bg-muscular">
+  <div class="content" style="gap:18px; padding-top:90px; padding-bottom:30px;">
+    <div class="progress-map" id="prog-m2"></div>
+    <div class="mission-card">
+      <span class="system-tag tag-muscular">💪 Sistema Muscular</span>
+      <h2 class="mission-title">MISIÓN 2 — TÚNELES DE FIBRA</h2>
+      <p class="mission-sub">A través de los corredores musculares</p>
+
+      <div class="mission-scenario scenario-muscular">
+        <p style="font-size:0.88rem; line-height:1.7">
+          💪 La nave atraviesa <strong>túneles pulsantes</strong> formados por haces de 
+          fibras musculares en contracción. El color rojo intenso de los tejidos ilumina 
+          el camino. El sensor muscular parpadea: 
+          <em style="color:#FF7070">"Clasificación de tipos musculares en proceso…"</em>
+        </p>
+      </div>
+
+      <div class="fragment-hint">
+        💡 <strong>Instrucción del código:</strong> El número de tipos principales de músculos 
+        <strong>es directamente el código</strong>.
+      </div>
+
+      <p class="mission-question">
+        🔬 ¿Cuántos <strong>tipos principales</strong> de músculos existen en el cuerpo humano?
+      </p>
+
+      <div class="options-grid" id="opts-m2">
+        <button class="option-btn" onclick="checkAnswer(2, this, false)">1 tipo</button>
+        <button class="option-btn" onclick="checkAnswer(2, this, false)">2 tipos</button>
+        <button class="option-btn" onclick="checkAnswer(2, this, true)">3 tipos</button>
+        <button class="option-btn" onclick="checkAnswer(2, this, false)">5 tipos</button>
+      </div>
+
+      <div class="feedback" id="fb-m2"></div>
+
+      <div style="margin-top:10px; display:none" id="extra-m2">
+        <div style="background:rgba(255,112,112,0.08); border:1px solid rgba(255,112,112,0.25); border-radius:10px; padding:12px 16px; font-size:0.84rem; line-height:1.6">
+          🏷️ <strong>Los 3 tipos son:</strong><br>
+          <span style="color:#FF7070">● Músculo Liso</span> — Órganos internos (estómago, intestinos)<br>
+          <span style="color:#FF7070">● Músculo Estriado</span> — Movimiento voluntario (brazos, piernas)<br>
+          <span style="color:#FF7070">● Músculo Cardíaco</span> — El corazón 💓
+        </div>
+      </div>
+
+      <div class="feedback" id="fb-m2b" style="margin-top:8px"></div>
+
+      <div style="text-align:center; display:none; margin-top:12px" id="next-m2">
+        <button class="btn btn-accent btn-sm" onclick="showScreen('screen-m3')">
+          🍎 SIGUIENTE MISIÓN →
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ╔══════════════════════════════════════════════════════════╗
+     ║  MISIÓN 3: SISTEMA DIGESTIVO                            ║
+     ╚══════════════════════════════════════════════════════════╝ -->
+<div id="screen-m3" class="screen bg-digestivo">
+  <div class="content" style="gap:18px; padding-top:90px; padding-bottom:30px;">
+    <div class="progress-map" id="prog-m3"></div>
+    <div class="mission-card">
+      <span class="system-tag tag-digestivo">🍎 Sistema Digestivo</span>
+      <h2 class="mission-title">MISIÓN 3 — RÍOS DE NUTRIENTES</h2>
+      <p class="mission-sub">Ordenando las estaciones digestivas</p>
+
+      <div class="mission-scenario scenario-digestivo">
+        <p style="font-size:0.88rem; line-height:1.7">
+          🍎 La nave flota sobre <strong>ríos dorados de nutrientes</strong>. El sistema 
+          digestivo está en acción y los órganos brillan con colores vibrantes. 
+          El ordenador indica: <em style="color:#90D040">"Para obtener tu código, debes ordenar
+          el recorrido digestivo correctamente y contar los órganos."</em>
+        </p>
+      </div>
+
+      <div class="fragment-hint">
+        💡 <strong>Instrucción del código:</strong> Ordena los 5 órganos en el orden correcto. 
+        <strong>Cuenta cuántos órganos hay</strong> — ese número es el código.
+      </div>
+
+      <p class="mission-question" style="font-size:0.95rem">
+        🔬 Arrastra y ordena el recorrido del sistema digestivo:
+      </p>
+
+      <div class="drag-zone" id="drag-zone-m3">
+        <!-- Items generados por JS -->
+      </div>
+
+      <div style="text-align:center; margin-bottom:14px">
+        <button class="btn btn-sm" onclick="checkDigestivo()"
+          style="background:linear-gradient(135deg,#66BB2A,#3A7D10); color:white; box-shadow:0 4px 16px rgba(100,180,50,0.35)">
+          ✅ VERIFICAR ORDEN
+        </button>
+      </div>
+
+      <div class="feedback" id="fb-m3"></div>
+
+      <div style="text-align:center; display:none; margin-top:10px" id="next-m3">
+        <button class="btn btn-accent btn-sm" onclick="showScreen('screen-m4')">
+          🫁 SIGUIENTE MISIÓN →
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ╔══════════════════════════════════════════════════════════╗
+     ║  MISIÓN 4: SISTEMA RESPIRATORIO                         ║
+     ╚══════════════════════════════════════════════════════════╝ -->
+<div id="screen-m4" class="screen bg-respiratorio">
+  <div class="content" style="gap:18px; padding-top:90px; padding-bottom:30px;">
+    <div class="progress-map" id="prog-m4"></div>
+    <div class="mission-card">
+      <span class="system-tag tag-respiratorio">🫁 Sistema Respiratorio</span>
+      <h2 class="mission-title">MISIÓN 4 — ALVÉOLOS GIGANTES</h2>
+      <p class="mission-sub">Entre corrientes de oxígeno</p>
+
+      <div class="mission-scenario scenario-respiratorio">
+        <p style="font-size:0.88rem; line-height:1.7">
+          🫁 La nave navega entre <strong>alvéolos gigantes</strong> que se expanden 
+          y contraen como globos transparentes. Corrientes de oxígeno de color azul 
+          celeste circulan a alta velocidad. El sensor respiratorio anuncia: 
+          <em style="color:#60DFFF">"Analizando capacidad pulmonar… código disponible."</em>
+        </p>
+      </div>
+
+      <div class="fragment-hint">
+        💡 <strong>Instrucción del código:</strong> La respuesta es directamente el código.
+      </div>
+
+      <p class="mission-question">
+        🔬 ¿Cuántos <strong>pulmones</strong> tiene una persona sana?
+      </p>
+
+      <div class="options-grid" id="opts-m4">
+        <button class="option-btn" onclick="checkAnswer(4, this, false)">1 pulmón</button>
+        <button class="option-btn" onclick="checkAnswer(4, this, true)">2 pulmones</button>
+        <button class="option-btn" onclick="checkAnswer(4, this, false)">3 pulmones</button>
+        <button class="option-btn" onclick="checkAnswer(4, this, false)">4 pulmones</button>
+      </div>
+
+      <div class="feedback" id="fb-m4"></div>
+
+      <div style="margin-top:10px; display:none" id="extra-m4">
+        <div style="background:rgba(0,180,255,0.08); border:1px solid rgba(0,180,255,0.25); border-radius:10px; padding:12px 16px; font-size:0.84rem; line-height:1.6">
+          🫁 <strong>Dato curioso:</strong> El pulmón <strong>derecho</strong> tiene 3 lóbulos 
+          y el <strong>izquierdo</strong> tiene 2, ya que hace espacio para el corazón. 
+          ¡Juntos intercambian oxígeno y CO₂ miles de veces al día!
+        </div>
+      </div>
+
+      <div class="feedback" id="fb-m4b" style="margin-top:8px"></div>
+
+      <div style="text-align:center; display:none; margin-top:12px" id="next-m4">
+        <button class="btn btn-accent btn-sm" onclick="showScreen('screen-m5')">
+          ❤️ SIGUIENTE MISIÓN →
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ╔══════════════════════════════════════════════════════════╗
+     ║  MISIÓN 5: SISTEMA CIRCULATORIO                         ║
+     ╚══════════════════════════════════════════════════════════╝ -->
+<div id="screen-m5" class="screen bg-circulatorio">
+  <div class="content" style="gap:18px; padding-top:90px; padding-bottom:30px;">
+    <div class="progress-map" id="prog-m5"></div>
+    <div class="mission-card">
+      <span class="system-tag tag-circulatorio">❤️ Sistema Circulatorio</span>
+      <h2 class="mission-title">MISIÓN 5 — AUTOPISTAS SANGUÍNEAS</h2>
+      <p class="mission-sub">Entre glóbulos rojos a 120 km/h</p>
+
+      <div class="mission-scenario scenario-circulatorio">
+        <p style="font-size:0.88rem; line-height:1.7">
+          ❤️ La nave está atrapada en una <strong>autopista sanguínea</strong>. 
+          Millones de glóbulos rojos de color escarlata pasan a toda velocidad. 
+          El corazón retumba como un tambor gigante. El monitor cardíaco alerta: 
+          <em style="color:#FF6090">"Análisis de cavidades cardíacas requerido para 
+          liberar el siguiente código."</em>
+        </p>
+      </div>
+
+      <div class="fragment-hint">
+        💡 <strong>Instrucción del código:</strong> La respuesta es directamente el código.
+      </div>
+
+      <p class="mission-question">
+        🔬 ¿Cuántas <strong>cavidades</strong> tiene el corazón humano?
+      </p>
+
+      <div class="options-grid" id="opts-m5">
+        <button class="option-btn" onclick="checkAnswer(5, this, false)">1 cavidad</button>
+        <button class="option-btn" onclick="checkAnswer(5, this, false)">2 cavidades</button>
+        <button class="option-btn" onclick="checkAnswer(5, this, false)">3 cavidades</button>
+        <button class="option-btn" onclick="checkAnswer(5, this, true)">4 cavidades</button>
+      </div>
+
+      <div class="feedback" id="fb-m5"></div>
+
+      <div style="margin-top:10px; display:none" id="extra-m5">
+        <div style="background:rgba(220,30,70,0.08); border:1px solid rgba(220,30,70,0.25); border-radius:10px; padding:12px 16px; font-size:0.84rem; line-height:1.6">
+          ❤️ <strong>Las 4 cavidades son:</strong><br>
+          <span style="color:#FF6090">→ Aurícula Derecha</span> · 
+          <span style="color:#FF6090">Ventrículo Derecho</span> (circulación pulmonar)<br>
+          <span style="color:#FF6090">→ Aurícula Izquierda</span> · 
+          <span style="color:#FF6090">Ventrículo Izquierdo</span> (circulación general)
+        </div>
+      </div>
+
+      <div class="feedback" id="fb-m5b" style="margin-top:8px"></div>
+
+      <div style="text-align:center; display:none; margin-top:12px" id="next-m5">
+        <button class="btn btn-accent btn-sm" onclick="showScreen('screen-m6')">
+          🧠 ÚLTIMA MISIÓN →
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ╔══════════════════════════════════════════════════════════╗
+     ║  MISIÓN 6: SISTEMA NERVIOSO                             ║
+     ╚══════════════════════════════════════════════════════════╝ -->
+<div id="screen-m6" class="screen bg-nervioso">
+  <div class="content" style="gap:18px; padding-top:90px; padding-bottom:30px;">
+    <div class="progress-map" id="prog-m6"></div>
+    <div class="mission-card">
+      <span class="system-tag tag-nervioso">🧠 Sistema Nervioso</span>
+      <h2 class="mission-title">MISIÓN 6 — EL CENTRO DE CONTROL</h2>
+      <p class="mission-sub">El cerebro: la última frontera</p>
+
+      <div class="mission-scenario scenario-nervioso">
+        <p style="font-size:0.88rem; line-height:1.7">
+          🧠 La nave ingresa al <strong>Centro de Control Neuronal</strong>. 
+          Millones de neuronas luminosas parpadean como estrellas en una galaxia 
+          interior. Sinapsis eléctricas cruzan el espacio a la velocidad de la luz. 
+          La IA de la nave proclama: <em style="color:#C070FF">"Has llegado al núcleo 
+          del sistema. El último código aguarda."</em>
+        </p>
+      </div>
+
+      <div class="fragment-hint">
+        💡 <strong>Instrucción del código:</strong> Identifica el órgano principal. 
+        Luego <strong>cuenta las letras</strong> de su nombre — ese número es el código.
+      </div>
+
+      <p class="mission-question">
+        🔬 ¿Cuál es el <strong>órgano principal</strong> del sistema nervioso?
+      </p>
+
+      <div class="options-grid" id="opts-m6">
+        <button class="option-btn" onclick="checkAnswer(6, this, false)">CORAZÓN</button>
+        <button class="option-btn" onclick="checkAnswer(6, this, true)">CEREBRO</button>
+        <button class="option-btn" onclick="checkAnswer(6, this, false)">MÉDULA</button>
+        <button class="option-btn" onclick="checkAnswer(6, this, false)">NERVIO</button>
+      </div>
+
+      <div class="feedback" id="fb-m6"></div>
+
+      <div style="margin-top:12px; display:none" id="extra-m6">
+        <p style="text-align:center; font-size:0.88rem; color:#C070FF; margin-bottom:8px; font-weight:700">
+          🔢 Ahora cuenta las letras de <strong style="color:white">CEREBRO</strong>:
+        </p>
+        <div class="letter-counter" id="letter-counter"></div>
+        <p style="text-align:center; font-size:0.85rem; color:rgba(240,248,255,0.7); margin-top:8px">
+          Total: <strong style="color:var(--gold); font-family:'Orbitron',monospace; font-size:1.1rem" id="letter-count">0</strong> letras → 
+          <strong style="color:var(--gold)">Código = 7</strong>
+        </p>
+      </div>
+
+      <div class="feedback" id="fb-m6b" style="margin-top:8px"></div>
+
+      <div style="text-align:center; display:none; margin-top:12px" id="next-m6">
+        <button class="btn btn-gold" onclick="showScreen('screen-escape')">
+          🚪 IR AL ESCAPE FINAL ✨
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ╔══════════════════════════════════════════════════════════╗
+     ║  PANTALLA ESCAPE FINAL                                  ║
+     ╚══════════════════════════════════════════════════════════╝ -->
+<div id="screen-escape" class="screen">
+  <div class="content" style="gap:24px; padding-top:80px; padding-bottom:40px;">
+
+    <h2 style="font-family:'Orbitron',monospace; font-size:1.3rem; color:var(--accent); text-align:center; letter-spacing:2px">
+      🚪 SALA FINAL DE ESCAPE
+    </h2>
+
+    <div class="portal-door" id="portal-door">
+      <div class="portal-door-inner">
+        <div class="portal-grill">
+          <div class="portal-grill-bar"></div>
+          <div class="portal-grill-bar"></div>
+          <div class="portal-grill-bar"></div>
+          <div class="portal-grill-bar"></div>
+          <div class="portal-grill-bar"></div>
+        </div>
+      </div>
+      <!-- Cerradura SVG -->
+      <div style="position:absolute; bottom:20px; left:50%; transform:translateX(-50%)">
+        <svg width="44" height="44" viewBox="0 0 44 44">
+          <rect x="6" y="20" width="32" height="20" rx="4" fill="#7B2FFF" opacity="0.8"/>
+          <path d="M13 20 V14 A9 9 0 0 1 31 14 V20" fill="none" stroke="#00E5FF" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="22" cy="30" r="3" fill="#FFD700"/>
+          <line x1="22" y1="30" x2="22" y2="36" stroke="#FFD700" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="mission-card" style="max-width:520px">
+      <p style="text-align:center; font-size:0.9rem; color:rgba(240,248,255,0.8); margin-bottom:8px; line-height:1.6">
+        Has recolectado los 6 códigos del código maestro.<br>
+        <strong style="color:var(--accent)">Ingresa el código de 6 dígitos</strong> para abrir la puerta y escapar.
+      </p>
+
+      <div style="text-align:center; margin-bottom:8px">
+        <p style="font-size:0.75rem; color:rgba(240,248,255,0.45); letter-spacing:1px">
+          📝 Revisa tu hoja de navegación con los 6 códigos
+        </p>
+      </div>
+
+      <div class="code-input-row">
+        <input class="code-digit-input" id="ci0" maxlength="1" type="text" inputmode="numeric"
+               oninput="moveNext(this,'ci1')" onkeydown="movePrev(event,this,'')"/>
+        <input class="code-digit-input" id="ci1" maxlength="1" type="text" inputmode="numeric"
+               oninput="moveNext(this,'ci2')" onkeydown="movePrev(event,this,'ci0')"/>
+        <input class="code-digit-input" id="ci2" maxlength="1" type="text" inputmode="numeric"
+               oninput="moveNext(this,'ci3')" onkeydown="movePrev(event,this,'ci1')"/>
+        <input class="code-digit-input" id="ci3" maxlength="1" type="text" inputmode="numeric"
+               oninput="moveNext(this,'ci4')" onkeydown="movePrev(event,this,'ci2')"/>
+        <input class="code-digit-input" id="ci4" maxlength="1" type="text" inputmode="numeric"
+               oninput="moveNext(this,'ci5')" onkeydown="movePrev(event,this,'ci3')"/>
+        <input class="code-digit-input" id="ci5" maxlength="1" type="text" inputmode="numeric"
+               oninput="moveNext(this,'')"   onkeydown="movePrev(event,this,'ci4')"/>
+      </div>
+
+      <div class="feedback" id="fb-escape"></div>
+
+      <div style="text-align:center; margin-top:6px">
+        <button class="btn btn-gold" onclick="checkEscape()">
+          🔓 ACTIVAR CÓDIGO MAESTRO
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ╔══════════════════════════════════════════════════════════╗
+     ║  PANTALLA VICTORIA                                      ║
+     ╚══════════════════════════════════════════════════════════╝ -->
+<div id="screen-win" class="screen">
+  <div class="content" style="gap:22px; padding:30px 20px;">
+
+    <div style="text-align:center; animation: fadeIn 0.8s ease">
+      <div style="font-size:3rem; margin-bottom:8px; animation:sealPulse 2s infinite">🎉</div>
+      <h1 style="font-family:'Orbitron',monospace; font-size:1.4rem; color:var(--green); letter-spacing:2px; text-shadow:0 0 30px rgba(0,255,136,0.5); margin-bottom:6px">
+        ¡MISIÓN COMPLETADA!
+      </h1>
+      <p style="color:rgba(240,248,255,0.8); font-size:0.95rem; max-width:480px; margin:0 auto; line-height:1.6">
+        Has escapado del cuerpo humano y <strong style="color:var(--gold)">salvado al paciente</strong>. 
+        La nave Código Vital regresa victoriosa al laboratorio. 🚀
+      </p>
+    </div>
+
+    <!-- DIPLOMA -->
+    <div class="diploma">
+      <div class="diploma-seal">🏅</div>
+      <div class="diploma-title">CERTIFICADO DE HONOR</div>
+      <div style="font-size:0.75rem; color:rgba(255,215,0,0.6); margin-bottom:12px; letter-spacing:2px">CIENCIAS NATURALES · MISIÓN ESPECIAL</div>
+
+      <div style="background:rgba(255,215,0,0.08); border:1px solid rgba(255,215,0,0.25); border-radius:10px; padding:12px; margin-bottom:14px">
+        <p style="font-size:0.8rem; color:rgba(255,215,0,0.7); margin-bottom:6px">Este diploma certifica que quien porta este documento ha demostrado conocimiento de:</p>
+        <p style="font-size:0.82rem; color:rgba(255,255,255,0.9); line-height:1.7">
+          🦴 Sistema Óseo · 💪 Sistema Muscular<br>
+          🍎 Sistema Digestivo · 🫁 Sistema Respiratorio<br>
+          ❤️ Sistema Circulatorio · 🧠 Sistema Nervioso
+        </p>
+      </div>
+
+      <div class="diploma-name">GUARDIÁN DEL CUERPO HUMANO</div>
+
+      <div class="diploma-text">
+        Por haber completado exitosamente la<br>
+        <strong>MISIÓN DE RESCATE DEL CUERPO HUMANO</strong><br>
+        a bordo de la nave científica <em>Código Vital</em><br>
+        con código maestro <strong style="font-family:'Orbitron',monospace; color:var(--gold)">235247</strong>
+      </div>
+
+      <div class="diploma-stars">⭐⭐⭐⭐⭐</div>
+
+      <div style="margin-top:14px; font-size:0.7rem; color:rgba(255,215,0,0.4); letter-spacing:2px">
+        AÑO 2050 · LABORATORIO DE EXPLORACIÓN CORPORAL
+      </div>
+    </div>
+
+    <div style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center">
+      <button class="btn btn-primary btn-sm" onclick="window.print()">🖨️ IMPRIMIR DIPLOMA</button>
+      <button class="btn btn-sm" onclick="resetGame()"
+        style="background:rgba(0,229,255,0.1); border:1.5px solid rgba(0,229,255,0.3); color:var(--accent)">
+        🔄 JUGAR DE NUEVO
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ╔══════════════════════════════════════════════════════════╗
+     ║  JAVASCRIPT                                             ║
+     ╚══════════════════════════════════════════════════════════╝ -->
+<script>
+/* ====================================================
+   ESTADO DEL JUEGO
+   ==================================================== */
+const CORRECT_CODE = '235247';
+const CODE_DIGITS  = ['2','3','5','2','4','7']; // códigos por misión
+
+const state = {
+  completed: [],      // misiones completadas [1..6]
+  energy: 100,        // % de energía
+  codeFragments: ['_','_','_','_','_','_']
+};
+
+/* ====================================================
+   CONFIGURACIÓN PROGRESO
+   ==================================================== */
+const MISSIONS = [
+  { id:1, emoji:'🦴', label:'Óseo',         screen:'screen-m1' },
+  { id:2, emoji:'💪', label:'Muscular',      screen:'screen-m2' },
+  { id:3, emoji:'🍎', label:'Digestivo',     screen:'screen-m3' },
+  { id:4, emoji:'🫁', label:'Respiratorio',  screen:'screen-m4' },
+  { id:5, emoji:'❤️', label:'Circulatorio',  screen:'screen-m5' },
+  { id:6, emoji:'🧠', label:'Nervioso',      screen:'screen-m6' },
+];
+
+/* ====================================================
+   GENERACIÓN DE ESTRELLAS Y PARTÍCULAS
+   ==================================================== */
+(function initBackground() {
+  const sf = document.getElementById('starfield');
+  for (let i = 0; i < 80; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random() * 2.5 + 0.5;
+    s.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${Math.random()*100}%;
+      top:${Math.random()*100}%;
+      --d:${(Math.random()*3+1.5).toFixed(1)}s;
+      --delay:${(Math.random()*4).toFixed(1)}s;
+    `;
+    sf.appendChild(s);
+  }
+  const pc = document.getElementById('particles');
+  const colors = ['#00E5FF','#7B2FFF','#00FF88','#FFD700','#FF4466'];
+  for (let i = 0; i < 18; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const size = Math.random() * 5 + 2;
+    p.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${Math.random()*100}%;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      --dur:${(Math.random()*8+6).toFixed(1)}s;
+      --del:${(Math.random()*10).toFixed(1)}s;
+    `;
+    pc.appendChild(p);
+  }
+})();
+
+/* ====================================================
+   NAVEGACIÓN ENTRE PANTALLAS
+   ==================================================== */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const target = document.getElementById(id);
+  if (target) {
+    target.classList.add('active');
+    window.scrollTo(0,0);
+  }
+  // Actualizar mapas de progreso
+  MISSIONS.forEach(m => {
+    const pm = document.getElementById(`prog-m${m.id}`);
+    if (pm) renderProgressMap(pm, m.id);
+  });
+}
+
+/* ====================================================
+   INICIO DE MISIONES (muestra HUD)
+   ==================================================== */
+function startMissions() {
+  document.getElementById('energy-bar').style.display = 'flex';
+  document.getElementById('mission-badge').style.display = 'block';
+  document.getElementById('code-card').style.display = 'block';
+  document.getElementById('ship-widget').style.display = 'block';
+  // Init drag misión 3
+  initDragM3();
+  showScreen('screen-m1');
+  updateBadge(1);
+}
+
+/* ====================================================
+   MAPA DE PROGRESO (inline en cada misión)
+   ==================================================== */
+function renderProgressMap(container, currentMission) {
+  container.innerHTML = MISSIONS.map(m => {
+    const done    = state.completed.includes(m.id);
+    const current = m.id === currentMission;
+    return `
+      <div class="prog-step">
+        <div class="prog-dot ${done?'done':''} ${current&&!done?'current':''}">${m.emoji}</div>
+        <div class="prog-label">${m.label}</div>
+      </div>`;
+  }).join('');
+}
+
+/* ====================================================
+   ACTUALIZAR BADGE
+   ==================================================== */
+function updateBadge(n) {
+  document.getElementById('badge-num').textContent = n;
+}
+
+/* ====================================================
+   ACTUALIZAR ENERGÍA
+   ==================================================== */
+function drainEnergy(by) {
+  state.energy = Math.max(0, state.energy - by);
+  document.getElementById('energy-fill').style.width = state.energy + '%';
+  document.getElementById('energy-pct').textContent = state.energy + '%';
+  const fill = document.getElementById('energy-fill');
+  if (state.energy <= 33) {
+    fill.style.background = 'linear-gradient(90deg,#FF4466,#FF8C00)';
+    fill.style.boxShadow  = '0 0 10px rgba(255,68,102,0.6)';
+  } else if (state.energy <= 66) {
+    fill.style.background = 'linear-gradient(90deg,#FFD700,#00E5FF)';
+    fill.style.boxShadow  = '0 0 10px rgba(255,215,0,0.4)';
+  }
+}
+
+/* ====================================================
+   REVELAR CÓDIGO
+   ==================================================== */
+function revealFragment(missionIndex) {
+  const digit = CODE_DIGITS[missionIndex];
+  state.codeFragments[missionIndex] = digit;
+  const slot = document.getElementById(`slot${missionIndex}`);
+  if (slot) {
+    slot.textContent = digit;
+    slot.classList.add('filled');
+  }
+}
+
+/* ====================================================
+   MARCAR MISIÓN COMPLETADA
+   ==================================================== */
+function completeMission(mNum) {
+  if (!state.completed.includes(mNum)) {
+    state.completed.push(mNum);
+  }
+  revealFragment(mNum - 1);
+  drainEnergy(0); // La energía sube con cada misión ✓
+  // Recargar energía por completar misión
+  state.energy = Math.min(100, state.energy + 14);
+  document.getElementById('energy-fill').style.width = state.energy + '%';
+  document.getElementById('energy-pct').textContent = state.energy + '%';
+  const fill = document.getElementById('energy-fill');
+  fill.style.background = 'linear-gradient(90deg,var(--green),var(--accent))';
+  fill.style.boxShadow  = '0 0 10px var(--green)';
+}
+
+/* ====================================================
+   VERIFICAR RESPUESTA (misiones múltiple opción)
+   ==================================================== */
+function checkAnswer(mNum, btn, isCorrect) {
+  const optsId  = `opts-m${mNum}`;
+  const fbId    = `fb-m${mNum}`;
+  const nextId  = `next-m${mNum}`;
+  const extraId = `extra-m${mNum}`;
+
+  const opts = document.getElementById(optsId);
+  if (!opts) return;
+
+  // Deshabilitar todos los botones
+  opts.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
+
+  const fb = document.getElementById(fbId);
+
+  if (isCorrect) {
+    btn.classList.add('correct');
+    completeMission(mNum);
+    updateBadge(Math.min(mNum + 1, 6));
+
+    const fragment = CODE_DIGITS[mNum - 1];
+    const msgs = {
+      1: `✅ ¡Correcto! El cuerpo adulto tiene <strong>206 huesos</strong>. El primer dígito, tu código, es <strong style="color:var(--gold);font-family:'Orbitron',monospace;font-size:1.1rem">${fragment}</strong> → Anótalo en tu hoja.`,
+      2: `✅ ¡Exacto! Existen <strong>3 tipos</strong> de músculos. Código = <strong style="color:var(--gold);font-family:'Orbitron',monospace;font-size:1.1rem">${fragment}</strong> → Anótalo.`,
+      4: `✅ ¡Perfecto! Tenemos <strong>2 pulmones</strong>. Código = <strong style="color:var(--gold);font-family:'Orbitron',monospace;font-size:1.1rem">${fragment}</strong> → Anótalo.`,
+      5: `✅ ¡Brillante! El corazón tiene <strong>4 cavidades</strong>. Código = <strong style="color:var(--gold);font-family:'Orbitron',monospace;font-size:1.1rem">${fragment}</strong> → Anótalo.`,
+      6: `✅ ¡Correcto! El órgano es el <strong>CEREBRO</strong>. Ahora cuenta sus letras abajo.`
+    };
+
+    fb.className = 'feedback success';
+    fb.innerHTML = msgs[mNum] || `✅ ¡Correcto! Código = <strong>${fragment}</strong>`;
+
+    const extra = document.getElementById(extraId);
+    if (extra) extra.style.display = 'block';
+
+    // Para M6: animar el contador de letras
+    if (mNum === 6) {
+      animateLetterCounter();
+      setTimeout(() => {
+        const fb6b = document.getElementById('fb-m6b');
+        fb6b.className = 'feedback success';
+        fb6b.innerHTML = `🔢 <strong>CEREBRO</strong> = 7 letras → Código = <strong style="color:var(--gold);font-family:'Orbitron',monospace;font-size:1.1rem">7</strong> → ¡Anótalo!`;
+      }, 2000);
+    }
+
+    // Mostrar siguiente
+    setTimeout(() => {
+      const nextEl = document.getElementById(nextId);
+      if (nextEl) nextEl.style.display = 'block';
+    }, mNum === 6 ? 2800 : 1200);
+
+    playBeep('success');
+
+  } else {
+    btn.classList.add('wrong');
+    fb.className = 'feedback error';
+    fb.innerHTML = '❌ No es esa. ¡Analiza bien los datos científicos e intenta de nuevo!';
+    drainEnergy(8);
+
+    // Re-habilitar con delay
+    setTimeout(() => {
+      opts.querySelectorAll('.option-btn').forEach(b => {
+        if (!b.classList.contains('correct')) {
+          b.disabled = false;
+          b.classList.remove('wrong');
+        }
+      });
+      fb.className = 'feedback';
+    }, 1200);
+
+    playBeep('error');
+  }
+}
+
+/* ====================================================
+   MISIÓN 3 — DRAG & DROP DIGESTIVO
+   ==================================================== */
+const DIGESTIVO_CORRECT = [
+  { label: 'Boca',             emoji: '👄' },
+  { label: 'Esófago',          emoji: '〰️' },
+  { label: 'Estómago',         emoji: '🫙' },
+  { label: 'Intestino Delgado',emoji: '🌀' },
+  { label: 'Intestino Grueso', emoji: '🔵' },
+];
+
+let dragCurrentOrder = [];
+let dragSrcIdx = null;
+
+function initDragM3() {
+  // Mezclar el orden inicial
+  dragCurrentOrder = [...DIGESTIVO_CORRECT].sort(() => Math.random() - 0.5);
+  renderDragZone();
+}
+
+function renderDragZone() {
+  const zone = document.getElementById('drag-zone-m3');
+  if (!zone) return;
+  zone.innerHTML = dragCurrentOrder.map((item, i) => `
+    <div class="drag-item" draggable="true"
+         data-idx="${i}"
+         ondragstart="dragStart(event,${i})"
+         ondragover="dragOver(event,${i})"
+         ondragleave="dragLeave(event)"
+         ondrop="dragDrop(event,${i})"
+         ontouchstart="touchStart(event,${i})"
+         ontouchmove="touchMove(event)"
+         ontouchend="touchEnd(event,${i})">
+      <span class="drag-handle">⠿</span>
+      <span class="drag-num">${i+1}.</span>
+      <span>${item.emoji}</span>
+      <span>${item.label}</span>
+    </div>
+  `).join('');
+}
+
+function dragStart(e, idx) {
+  dragSrcIdx = idx;
+  e.dataTransfer.effectAllowed = 'move';
+  setTimeout(() => {
+    const el = document.querySelector(`[data-idx="${idx}"]`);
+    if (el) el.classList.add('dragging');
+  }, 10);
+}
+function dragOver(e, idx) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  document.querySelectorAll('.drag-item').forEach(el => el.classList.remove('drag-over'));
+  const el = document.querySelector(`[data-idx="${idx}"]`);
+  if (el && idx !== dragSrcIdx) el.classList.add('drag-over');
+}
+function dragLeave(e) {
+  e.currentTarget.classList.remove('drag-over');
+}
+function dragDrop(e, idx) {
+  e.preventDefault();
+  document.querySelectorAll('.drag-item').forEach(el => {
+    el.classList.remove('dragging','drag-over');
+  });
+  if (dragSrcIdx === null || dragSrcIdx === idx) return;
+  // Intercambiar
+  const tmp = dragCurrentOrder[dragSrcIdx];
+  dragCurrentOrder[dragSrcIdx] = dragCurrentOrder[idx];
+  dragCurrentOrder[idx] = tmp;
+  dragSrcIdx = null;
+  renderDragZone();
+}
+
+// Touch support
+let touchSrcIdx = null;
+function touchStart(e, idx) { touchSrcIdx = idx; }
+function touchMove(e) { e.preventDefault(); }
+function touchEnd(e, idx) {
+  if (touchSrcIdx === null || touchSrcIdx === idx) { touchSrcIdx = null; return; }
+  const tmp = dragCurrentOrder[touchSrcIdx];
+  dragCurrentOrder[touchSrcIdx] = dragCurrentOrder[idx];
+  dragCurrentOrder[idx] = tmp;
+  touchSrcIdx = null;
+  renderDragZone();
+}
+
+function checkDigestivo() {
+  const fb = document.getElementById('fb-m3');
+  const isCorrect = dragCurrentOrder.every(
+    (item, i) => item.label === DIGESTIVO_CORRECT[i].label
+  );
+  if (isCorrect) {
+    completeMission(3);
+    updateBadge(4);
+    fb.className = 'feedback success';
+    fb.innerHTML = `✅ ¡Orden perfecto! Has identificado los <strong>5 órganos</strong> del sistema digestivo en el orden correcto. Código = <strong style="color:var(--gold);font-family:'Orbitron',monospace;font-size:1.1rem">5</strong> → Anótalo en tu hoja.`;
+    setTimeout(() => {
+      document.getElementById('next-m3').style.display = 'block';
+    }, 1200);
+    playBeep('success');
+  } else {
+    fb.className = 'feedback error';
+    fb.innerHTML = '❌ El orden no es correcto. Recuerda: el alimento entra por la boca y recorre el cuerpo hasta salir. ¡Inténtalo de nuevo!';
+    drainEnergy(8);
+    playBeep('error');
+  }
+}
+
+/* ====================================================
+   MISIÓN 6 — ANIMACIÓN CONTADOR DE LETRAS
+   ==================================================== */
+function animateLetterCounter() {
+  const word = 'CEREBRO';
+  const container = document.getElementById('letter-counter');
+  const countEl   = document.getElementById('letter-count');
+  if (!container) return;
+
+  container.innerHTML = word.split('').map((l, i) => `
+    <div class="letter-box" id="lb${i}">
+      ${l}
+      <span class="letter-num">${i+1}</span>
+    </div>`).join('');
+
+  let i = 0;
+  const timer = setInterval(() => {
+    const lb = document.getElementById(`lb${i}`);
+    if (lb) lb.classList.add('highlight');
+    i++;
+    if (countEl) countEl.textContent = i;
+    if (i >= word.length) clearInterval(timer);
+  }, 280);
+}
+
+/* ====================================================
+   SALA DE ESCAPE FINAL
+   ==================================================== */
+function moveNext(input, nextId) {
+  input.value = input.value.replace(/[^0-9]/g,'').slice(-1);
+  if (input.value && nextId) {
+    const next = document.getElementById(nextId);
+    if (next) next.focus();
+  }
+}
+function movePrev(e, input, prevId) {
+  if (e.key === 'Backspace' && !input.value && prevId) {
+    const prev = document.getElementById(prevId);
+    if (prev) { prev.focus(); prev.value = ''; }
+  }
+}
+
+function checkEscape() {
+  const digits = ['ci0','ci1','ci2','ci3','ci4','ci5']
+    .map(id => document.getElementById(id).value)
+    .join('');
+  const fb = document.getElementById('fb-escape');
+
+  if (digits === CORRECT_CODE) {
+    fb.className = 'feedback success';
+    fb.innerHTML = '✅ ¡CÓDIGO CORRECTO! Activando puerta de escape…';
+
+    // Animación puerta
+    setTimeout(() => {
+      document.getElementById('portal-door').classList.add('open');
+      playBeep('win');
+      launchConfetti();
+    }, 600);
+    setTimeout(() => {
+      showScreen('screen-win');
+    }, 2200);
+  } else if (digits.length < 6) {
+    fb.className = 'feedback error';
+    fb.innerHTML = '⚠️ Ingresa los 6 dígitos del código maestro.';
+    playBeep('error');
+  } else {
+    fb.className = 'feedback error';
+    fb.innerHTML = `❌ Código incorrecto: <strong>${digits}</strong>. Revisa tus 6 códigos y vuelve a intentarlo.`;
+    drainEnergy(12);
+    // Shake inputs
+    ['ci0','ci1','ci2','ci3','ci4','ci5'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) { el.style.animation='shake 0.4s ease'; setTimeout(()=>el.style.animation='',500); }
+    });
+    playBeep('error');
+  }
+}
+
+/* ====================================================
+   CONFETTI
+   ==================================================== */
+function launchConfetti() {
+  const colors = ['#FFD700','#00E5FF','#7B2FFF','#00FF88','#FF4466','#FF8C00','#ffffff'];
+  for (let i = 0; i < 90; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    el.style.cssText = `
+      left:${Math.random()*100}vw;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      --dur:${(Math.random()*2+2.5).toFixed(1)}s;
+      --del:${(Math.random()*1.5).toFixed(1)}s;
+      transform:rotate(${Math.random()*360}deg);
+      border-radius:${Math.random()>0.5?'50%':'2px'};
+    `;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 5000);
+  }
+}
+
+/* ====================================================
+   AUDIO SINTÉTICO (Web Audio API)
+   ==================================================== */
+let audioCtx = null;
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+function playBeep(type) {
+  try {
+    const ctx = getAudioCtx();
+    const g   = ctx.createGain();
+    g.connect(ctx.destination);
+
+    if (type === 'success') {
+      playNote(ctx, g, 523, 0,    0.12);
+      playNote(ctx, g, 659, 0.13, 0.12);
+      playNote(ctx, g, 784, 0.26, 0.2);
+    } else if (type === 'error') {
+      playNote(ctx, g, 200, 0, 0.08, 'sawtooth');
+      playNote(ctx, g, 150, 0.09, 0.15, 'sawtooth');
+    } else if (type === 'win') {
+      [523,659,784,1047].forEach((f,i) => playNote(ctx,g,f,i*0.15,0.25));
+    }
+  } catch(e) { /* sin audio */ }
+}
+function playNote(ctx, g, freq, delay, dur, type='sine') {
+  const o = ctx.createOscillator();
+  const gn = ctx.createGain();
+  o.connect(gn); gn.connect(g);
+  o.type = type;
+  o.frequency.value = freq;
+  gn.gain.setValueAtTime(0.18, ctx.currentTime + delay);
+  gn.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + dur);
+  o.start(ctx.currentTime + delay);
+  o.stop(ctx.currentTime + delay + dur + 0.05);
+}
+
+/* ====================================================
+   RESET / JUGAR DE NUEVO
+   ==================================================== */
+function resetGame() {
+  state.completed = [];
+  state.energy = 100;
+  state.codeFragments = ['_','_','_','_','_','_'];
+
+  // Resetear slots de código
+  for (let i = 0; i < 6; i++) {
+    const slot = document.getElementById(`slot${i}`);
+    if (slot) { slot.textContent = '_'; slot.classList.remove('filled'); }
+  }
+  // Resetear feedbacks y botones
+  [1,2,3,4,5,6].forEach(m => {
+    const fb = document.getElementById(`fb-m${m}`);
+    if (fb) { fb.className = 'feedback'; fb.innerHTML = ''; }
+    const opts = document.getElementById(`opts-m${m}`);
+    if (opts) opts.querySelectorAll('.option-btn').forEach(b => {
+      b.disabled = false; b.classList.remove('correct','wrong');
+    });
+    const next = document.getElementById(`next-m${m}`);
+    if (next) next.style.display = 'none';
+    const extra = document.getElementById(`extra-m${m}`);
+    if (extra) extra.style.display = 'none';
+    const fb2 = document.getElementById(`fb-m${m}b`);
+    if (fb2) { fb2.className = 'feedback'; fb2.innerHTML = ''; }
+  });
+
+  // Resetear inputs de escape
+  ['ci0','ci1','ci2','ci3','ci4','ci5'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  const fbe = document.getElementById('fb-escape');
+  if (fbe) { fbe.className = 'feedback'; fbe.innerHTML = ''; }
+
+  // Resetear puerta
+  const door = document.getElementById('portal-door');
+  if (door) door.classList.remove('open');
+
+  // Resetear energía visual
+  document.getElementById('energy-fill').style.width = '100%';
+  document.getElementById('energy-fill').style.background = 'linear-gradient(90deg,var(--green),var(--accent))';
+  document.getElementById('energy-fill').style.boxShadow = '0 0 10px var(--green)';
+  document.getElementById('energy-pct').textContent = '100%';
+
+  // Reinit drag
+  initDragM3();
+
+  // Ocultar HUD
+  document.getElementById('energy-bar').style.display = 'none';
+  document.getElementById('mission-badge').style.display = 'none';
+  document.getElementById('code-card').style.display = 'none';
+  document.getElementById('ship-widget').style.display = 'none';
+
+  showScreen('screen-intro');
+}
+
+/* ====================================================
+   INIT
+   ==================================================== */
+// Pantalla inicial activa por defecto
+</script>
+</body>
+</html>
