@@ -1,0 +1,1377 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CÓDIGO VITAL: Misión de Rescate del Cuerpo Humano</title>
+<style>
+/* ============================================================
+   CÓDIGO VITAL v2.0 — Escape Room Educativo Mejorado
+   Ciencias Naturales 4° y 5° Grado · Colombia
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Nunito:wght@400;600;700;800;900&display=swap');
+
+/* ── VARIABLES ─────────────────────────────────────────────── */
+:root {
+  --navy:    #0B1026;
+  --deep:    #14213D;
+  --accent:  #00C2CB;
+  --accent2: #7B2FFF;
+  --green:   #7AE582;
+  --orange:  #FF9F1C;
+  --gold:    #FFD700;
+  --red:     #FF4466;
+  --white:   #F8F9FA;
+  --glass:   rgba(0,194,203,0.07);
+  --gborder: rgba(0,194,203,0.22);
+  --radius:  16px;
+  --shadow:  0 8px 32px rgba(0,194,203,0.13);
+}
+
+/* ── RESET ─────────────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Nunito','Arial Rounded MT Bold',sans-serif;
+  background:var(--navy);
+  color:var(--white);
+  min-height:100vh;
+  overflow-x:hidden;
+  user-select:none;
+}
+
+/* ── PANTALLAS ─────────────────────────────────────────────── */
+.screen{display:none;min-height:100vh;position:relative;overflow:hidden;animation:fadeIn .55s ease}
+.screen.active{display:flex;flex-direction:column}
+@keyframes fadeIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── FONDO ESTRELLADO ──────────────────────────────────────── */
+.starfield{position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse at 18% 55%,rgba(122,229,130,.10) 0%,transparent 55%),
+             radial-gradient(ellipse at 82% 18%,rgba(0,194,203,.10) 0%,transparent 55%),
+             var(--navy)}
+.star{position:absolute;border-radius:50%;background:#fff;
+  animation:twinkle var(--d,3s) var(--dl,0s) infinite alternate}
+@keyframes twinkle{from{opacity:.2;transform:scale(.8)}to{opacity:1;transform:scale(1.2)}}
+
+/* ── PARTÍCULAS ────────────────────────────────────────────── */
+.particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.particle{position:absolute;border-radius:50%;background:var(--accent);opacity:.35;
+  animation:floatUp var(--dur,8s) var(--del,0s) infinite linear}
+@keyframes floatUp{
+  0%{transform:translateY(110vh) scale(0);opacity:0}
+  10%{opacity:.35}90%{opacity:.35}
+  100%{transform:translateY(-10vh) scale(1);opacity:0}}
+
+/* ── CONTENIDO ─────────────────────────────────────────────── */
+.content{position:relative;z-index:10;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;padding:20px;flex:1}
+
+/* ── NAVE ──────────────────────────────────────────────────── */
+.ship-container{position:fixed;bottom:18px;right:18px;z-index:100;width:88px;
+  animation:shipFloat 4s ease-in-out infinite;pointer-events:none}
+@keyframes shipFloat{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translateY(-14px) rotate(5deg)}}
+.engine-glow{animation:enginePulse .8s ease-in-out infinite alternate}
+@keyframes enginePulse{from{opacity:.4}to{opacity:1}}
+
+/* ── BARRA ENERGÍA ─────────────────────────────────────────── */
+.energy-bar{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:200;
+  display:flex;align-items:center;gap:10px;
+  background:rgba(11,16,38,.88);border:1px solid var(--gborder);border-radius:30px;
+  padding:6px 16px;backdrop-filter:blur(10px)}
+.energy-label{font-family:'Orbitron',monospace;font-size:.62rem;color:var(--accent);letter-spacing:2px}
+.energy-track{width:120px;height:10px;background:rgba(255,255,255,.09);border-radius:10px;
+  overflow:hidden;border:1px solid var(--gborder)}
+.energy-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--accent));
+  border-radius:10px;transition:width .8s ease;box-shadow:0 0 10px var(--green)}
+.energy-pct{font-family:'Orbitron',monospace;font-size:.62rem;color:var(--green);min-width:38px}
+
+/* ── BADGE MISIÓN ──────────────────────────────────────────── */
+.mission-badge{position:fixed;top:14px;right:18px;z-index:200;
+  font-family:'Orbitron',monospace;font-size:.6rem;color:var(--accent);
+  background:rgba(11,16,38,.88);border:1px solid var(--gborder);
+  border-radius:20px;padding:6px 14px;letter-spacing:2px;backdrop-filter:blur(10px)}
+
+/* ── BOTONES ───────────────────────────────────────────────── */
+.btn{display:inline-flex;align-items:center;gap:10px;padding:14px 36px;border:none;
+  border-radius:50px;font-family:'Nunito',sans-serif;font-size:1.05rem;font-weight:800;
+  cursor:pointer;transition:all .22s ease;text-transform:uppercase;letter-spacing:1.5px;
+  position:relative;overflow:hidden}
+.btn::after{content:'';position:absolute;inset:0;background:rgba(255,255,255,.14);
+  opacity:0;transition:opacity .2s;border-radius:inherit}
+.btn:hover::after{opacity:1}
+.btn:active{transform:scale(.96)}
+.btn-primary{background:linear-gradient(135deg,var(--accent2),#4A00E0);color:#fff;
+  box-shadow:0 6px 24px rgba(123,47,255,.42)}
+.btn-primary:hover{transform:translateY(-3px);box-shadow:0 10px 32px rgba(123,47,255,.58)}
+.btn-accent{background:linear-gradient(135deg,#00A0A8,var(--accent));color:var(--navy);
+  box-shadow:0 6px 24px rgba(0,194,203,.32)}
+.btn-accent:hover{transform:translateY(-3px);box-shadow:0 10px 32px rgba(0,194,203,.52)}
+.btn-gold{background:linear-gradient(135deg,#FFD700,#FFA500);color:var(--navy);
+  box-shadow:0 6px 24px rgba(255,215,0,.38)}
+.btn-gold:hover{transform:translateY(-3px);box-shadow:0 10px 32px rgba(255,215,0,.55)}
+.btn-green{background:linear-gradient(135deg,#5BC760,#2E9E35);color:#fff;
+  box-shadow:0 6px 24px rgba(122,229,130,.32)}
+.btn-green:hover{transform:translateY(-3px)}
+.btn-sm{padding:10px 24px;font-size:.88rem;letter-spacing:1px}
+
+/* ── TARJETA MISIÓN ────────────────────────────────────────── */
+.mission-card{background:var(--glass);border:1px solid var(--gborder);border-radius:var(--radius);
+  padding:26px 30px;max-width:680px;width:100%;box-shadow:var(--shadow);backdrop-filter:blur(12px)}
+.mission-title{font-family:'Orbitron',monospace;font-size:1.25rem;font-weight:900;
+  color:var(--accent);text-align:center;margin-bottom:5px;
+  text-shadow:0 0 20px rgba(0,194,203,.45)}
+.mission-sub{text-align:center;font-size:.85rem;color:rgba(248,249,250,.55);
+  margin-bottom:20px;letter-spacing:1px;text-transform:uppercase}
+.mission-scenario{border-radius:12px;padding:15px 18px;margin-bottom:18px;
+  font-size:.9rem;line-height:1.65}
+.mission-question{font-size:1.05rem;font-weight:700;color:var(--white);
+  margin-bottom:18px;line-height:1.5;text-align:center}
+
+/* ── OPCIONES ──────────────────────────────────────────────── */
+.options-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:16px}
+.option-btn{background:rgba(0,194,203,.06);border:2px solid rgba(0,194,203,.18);
+  border-radius:12px;padding:13px 16px;color:var(--white);
+  font-family:'Nunito',sans-serif;font-size:.93rem;font-weight:700;
+  cursor:pointer;transition:all .22s;text-align:center}
+.option-btn:hover:not(:disabled){border-color:var(--accent);background:rgba(0,194,203,.13);
+  transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,194,203,.18)}
+.option-btn.correct{border-color:var(--green);background:rgba(122,229,130,.14);
+  box-shadow:0 0 20px rgba(122,229,130,.28);animation:correctPulse .5s ease}
+.option-btn.wrong{border-color:var(--red);background:rgba(255,68,102,.1);animation:shake .4s ease}
+@keyframes correctPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+
+/* ── FEEDBACK ──────────────────────────────────────────────── */
+.feedback{display:none;border-radius:12px;padding:13px 18px;margin-bottom:14px;
+  font-weight:700;font-size:.9rem;line-height:1.55;text-align:center;animation:fadeIn .4s ease}
+.feedback.success{display:block;background:rgba(122,229,130,.10);
+  border:1.5px solid var(--green);color:#7AE582}
+.feedback.error{display:block;background:rgba(255,68,102,.08);
+  border:1.5px solid var(--red);color:#FF7090}
+
+/* ── NOTA CUADERNO ─────────────────────────────────────────── */
+.notebook-note{background:rgba(255,159,28,.08);border:1.5px solid rgba(255,159,28,.35);
+  border-radius:11px;padding:12px 16px;font-size:.85rem;color:rgba(255,159,28,.95);
+  line-height:1.55;margin-top:10px;display:none}
+.notebook-note.visible{display:block}
+
+/* ── HINT BOX ──────────────────────────────────────────────── */
+.hint-box{background:rgba(0,194,203,.07);border:1px solid rgba(0,194,203,.22);
+  border-radius:10px;padding:12px 16px;font-size:.85rem;color:rgba(248,249,250,.8);
+  line-height:1.55;margin-bottom:15px}
+
+/* ── RETROALIMENTACIÓN FORMATIVA ───────────────────────────── */
+.retro-box{border-radius:12px;padding:14px 18px;font-size:.87rem;line-height:1.6;
+  margin-bottom:14px;display:none}
+.retro-box.visible{display:block}
+.retro-box.retro-ok{background:rgba(122,229,130,.10);border:1.5px solid rgba(122,229,130,.35)}
+.retro-box.retro-err{background:rgba(255,159,28,.08);border:1.5px solid rgba(255,159,28,.3)}
+
+/* ── DRAG & DROP ───────────────────────────────────────────── */
+.drag-zone{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.drag-item{background:rgba(0,194,203,.06);border:2px solid rgba(0,194,203,.18);
+  border-radius:10px;padding:11px 16px;cursor:grab;font-weight:700;font-size:.92rem;
+  display:flex;align-items:center;gap:12px;transition:all .2s;user-select:none}
+.drag-item:hover{border-color:var(--accent);background:rgba(0,194,203,.12)}
+.drag-item.dragging{opacity:.4;border-color:var(--accent2);border-style:dashed}
+.drag-item.drag-over{border-color:var(--gold);transform:scale(1.02)}
+.drag-handle{color:var(--accent);font-size:1.1rem}
+.drag-num{font-family:'Orbitron',monospace;color:var(--gold);min-width:22px;font-size:.82rem}
+
+/* ── INPUT CÓDIGO FINAL ────────────────────────────────────── */
+.code-input-row{display:flex;gap:8px;justify-content:center;margin:18px 0}
+.code-digit-input{width:52px;height:64px;background:rgba(0,194,203,.06);
+  border:2px solid rgba(0,194,203,.28);border-radius:12px;text-align:center;
+  font-family:'Orbitron',monospace;font-size:1.6rem;font-weight:900;
+  color:var(--gold);outline:none;transition:all .2s}
+.code-digit-input:focus{border-color:var(--accent);background:rgba(0,194,203,.12);
+  box-shadow:0 0 20px rgba(0,194,203,.18)}
+
+/* ── CONTADOR DE LETRAS ────────────────────────────────────── */
+.letter-counter{display:flex;justify-content:center;gap:5px;flex-wrap:wrap;margin:11px 0}
+.letter-box{width:38px;height:42px;background:rgba(122,47,255,.10);
+  border:2px solid rgba(160,80,255,.28);border-radius:8px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-family:'Orbitron',monospace;font-size:1rem;font-weight:900;color:var(--white);
+  transition:all .3s}
+.letter-box.highlight{border-color:var(--accent2);background:rgba(122,47,255,.2);
+  box-shadow:0 0 14px rgba(122,47,255,.38)}
+.letter-num{font-size:.52rem;color:rgba(160,80,255,.7);font-family:'Nunito',sans-serif;font-weight:700}
+
+/* ── MAPA PROGRESO ─────────────────────────────────────────── */
+.progress-map{display:flex;justify-content:center;gap:6px;flex-wrap:wrap;margin-bottom:18px}
+.prog-step{display:flex;flex-direction:column;align-items:center;gap:3px}
+.prog-dot{width:35px;height:35px;border-radius:50%;border:2px solid rgba(0,194,203,.2);
+  background:rgba(0,194,203,.04);display:flex;align-items:center;justify-content:center;
+  font-size:1rem;transition:all .4s}
+.prog-dot.done{border-color:var(--green);background:rgba(122,229,130,.12);
+  box-shadow:0 0 14px rgba(122,229,130,.28)}
+.prog-dot.current{border-color:var(--accent);background:rgba(0,194,203,.12);
+  box-shadow:0 0 14px rgba(0,194,203,.38);animation:pingDot 1.5s ease-in-out infinite}
+@keyframes pingDot{0%,100%{box-shadow:0 0 14px rgba(0,194,203,.38)}50%{box-shadow:0 0 28px rgba(0,194,203,.68)}}
+.prog-label{font-size:.53rem;color:rgba(248,249,250,.38);text-align:center;
+  letter-spacing:.5px;max-width:48px;line-height:1.2}
+
+/* ── PORTAL PUERTA ─────────────────────────────────────────── */
+.portal-door{width:155px;height:215px;background:linear-gradient(180deg,#1a0030 0%,#0D2060 100%);
+  border:4px solid var(--accent2);border-radius:78px 78px 8px 8px;margin:0 auto 22px;
+  position:relative;box-shadow:0 0 40px rgba(123,47,255,.48),inset 0 0 40px rgba(123,47,255,.08);
+  transition:all 1s ease;overflow:hidden}
+.portal-door.open{background:radial-gradient(ellipse at center,#FFD700 0%,var(--green) 40%,var(--accent) 100%);
+  box-shadow:0 0 80px rgba(255,215,0,.65),0 0 160px rgba(122,229,130,.38);transform:scale(1.1)}
+.portal-door-inner{position:absolute;inset:8px;border:2px solid rgba(255,255,255,.13);
+  border-radius:68px 68px 4px 4px}
+.portal-grill{display:flex;flex-direction:column;gap:14px;padding:28px 18px}
+.portal-grill-bar{height:3px;background:rgba(0,194,203,.28);border-radius:2px;
+  box-shadow:0 0 8px rgba(0,194,203,.38)}
+
+/* ── DIPLOMA ───────────────────────────────────────────────── */
+.diploma{background:linear-gradient(135deg,#1a0a00,#2d1a00);border:3px solid var(--gold);
+  border-radius:20px;padding:30px;max-width:540px;width:100%;text-align:center;
+  box-shadow:0 0 60px rgba(255,215,0,.28),inset 0 0 40px rgba(255,165,0,.04);
+  position:relative;overflow:hidden}
+.diploma::before{content:'';position:absolute;inset:8px;
+  border:1px solid rgba(255,215,0,.25);border-radius:14px;pointer-events:none}
+.diploma-seal{font-size:3.2rem;margin-bottom:8px;animation:sealPulse 2s ease-in-out infinite}
+@keyframes sealPulse{0%,100%{transform:scale(1) rotate(-5deg)}50%{transform:scale(1.08) rotate(5deg)}}
+.diploma-title{font-family:'Orbitron',monospace;font-size:.95rem;color:var(--gold);
+  letter-spacing:3px;margin-bottom:4px}
+.diploma-name-input{background:rgba(255,215,0,.08);border:none;border-bottom:2px solid var(--gold);
+  text-align:center;font-family:'Orbitron',monospace;font-size:1.15rem;font-weight:900;
+  color:var(--white);outline:none;width:80%;padding:6px 10px;margin:14px 0;
+  border-radius:4px 4px 0 0;transition:background .2s}
+.diploma-name-input:focus{background:rgba(255,215,0,.14)}
+.diploma-name-input::placeholder{color:rgba(255,215,0,.35);font-size:.8rem;font-family:'Nunito',sans-serif}
+.diploma-text{font-size:.85rem;color:rgba(255,215,0,.78);line-height:1.65;margin-bottom:14px}
+.diploma-stars{font-size:1.3rem;letter-spacing:5px}
+
+/* ── CONFETI ───────────────────────────────────────────────── */
+.confetti-piece{position:fixed;width:10px;height:14px;border-radius:2px;
+  pointer-events:none;z-index:9999;
+  animation:confettiFall var(--dur,3s) var(--del,0s) ease-in forwards}
+@keyframes confettiFall{0%{transform:translateY(-20px) rotate(0deg);opacity:1}
+  100%{transform:translateY(110vh) rotate(720deg);opacity:0}}
+
+/* ── ESCENARIOS POR SISTEMA ────────────────────────────────── */
+.bg-oseo{background:radial-gradient(ellipse at top,#1a0a2e 0%,#0B1026 100%)}
+.bg-muscular{background:radial-gradient(ellipse at top,#2a0a0a 0%,#0B1026 100%)}
+.bg-digestivo{background:radial-gradient(ellipse at top,#1a1a00 0%,#0B1026 100%)}
+.bg-respiratorio{background:radial-gradient(ellipse at top,#001a2a 0%,#0B1026 100%)}
+.bg-circulatorio{background:radial-gradient(ellipse at top,#2a0010 0%,#0B1026 100%)}
+.bg-nervioso{background:radial-gradient(ellipse at top,#0a0020 0%,#0B1026 100%)}
+
+.scenario-oseo{background:linear-gradient(135deg,rgba(150,100,50,.13),rgba(100,70,30,.08));
+  border:1px solid rgba(212,160,74,.28)}
+.scenario-muscular{background:linear-gradient(135deg,rgba(200,50,50,.13),rgba(150,30,30,.08));
+  border:1px solid rgba(255,100,100,.28)}
+.scenario-digestivo{background:linear-gradient(135deg,rgba(100,180,50,.13),rgba(80,140,30,.08));
+  border:1px solid rgba(150,220,80,.28)}
+.scenario-respiratorio{background:linear-gradient(135deg,rgba(0,180,255,.13),rgba(0,120,200,.08));
+  border:1px solid rgba(0,220,255,.28)}
+.scenario-circulatorio{background:linear-gradient(135deg,rgba(220,30,70,.13),rgba(180,10,50,.08));
+  border:1px solid rgba(255,60,100,.28)}
+.scenario-nervioso{background:linear-gradient(135deg,rgba(100,0,255,.13),rgba(60,0,200,.08));
+  border:1px solid rgba(160,80,255,.28)}
+
+.system-tag{display:inline-block;padding:4px 13px;border-radius:20px;font-size:.7rem;
+  font-weight:800;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px}
+.tag-oseo{background:rgba(200,160,80,.18);color:#D4A04A;border:1px solid rgba(200,160,80,.35)}
+.tag-muscular{background:rgba(200,50,50,.18);color:#FF7070;border:1px solid rgba(255,100,100,.35)}
+.tag-digestivo{background:rgba(100,180,50,.18);color:#90D040;border:1px solid rgba(150,220,80,.35)}
+.tag-respiratorio{background:rgba(0,180,255,.18);color:#60DFFF;border:1px solid rgba(0,220,255,.35)}
+.tag-circulatorio{background:rgba(220,30,70,.18);color:#FF6090;border:1px solid rgba(255,60,100,.35)}
+.tag-nervioso{background:rgba(100,0,255,.18);color:#C070FF;border:1px solid rgba(160,80,255,.35)}
+
+/* ── TIPOGRAFÍA GENERAL ────────────────────────────────────── */
+.big-title{font-family:'Orbitron',monospace;font-size:clamp(1.6rem,5vw,3rem);
+  font-weight:900;text-align:center;line-height:1.2;letter-spacing:2px;
+  text-shadow:0 0 40px rgba(0,194,203,.38)}
+.big-title .line1{color:var(--accent);display:block}
+.big-title .line2{color:var(--white);display:block}
+.big-title .line3{color:var(--gold);display:block;font-size:.6em;letter-spacing:6px}
+.subtitle{text-align:center;color:rgba(248,249,250,.68);font-size:.93rem;
+  line-height:1.6;max-width:500px;margin:0 auto}
+
+/* ── OBJETIVOS ─────────────────────────────────────────────── */
+.obj-item{display:flex;align-items:flex-start;gap:14px;
+  background:rgba(0,194,203,.06);border:1px solid rgba(0,194,203,.18);
+  border-radius:12px;padding:13px 16px}
+.obj-item .obj-icon{font-size:1.6rem;flex-shrink:0;line-height:1}
+.obj-item p{font-size:.92rem;line-height:1.6;color:rgba(248,249,250,.88)}
+
+/* ── RESPONSIVE ────────────────────────────────────────────── */
+@media(max-width:600px){
+  .mission-card{padding:18px 14px}
+  .options-grid{grid-template-columns:1fr}
+  .code-input-row{gap:5px}
+  .code-digit-input{width:42px;height:52px;font-size:1.3rem}
+  .ship-container{width:62px;bottom:10px;right:10px}
+  .energy-track{width:80px}
+  .progress-map{gap:4px}
+  .prog-dot{width:30px;height:30px;font-size:.9rem}
+}
+</style>
+</head>
+<body>
+
+<!-- FONDO -->
+<div class="starfield" id="starfield"></div>
+<div class="particles" id="particles"></div>
+
+<!-- HUD: ENERGÍA -->
+<div class="energy-bar" id="energy-bar" style="display:none">
+  <span class="energy-label">⚡ ENERGÍA</span>
+  <div class="energy-track"><div class="energy-fill" id="energy-fill" style="width:100%"></div></div>
+  <span class="energy-pct" id="energy-pct">100%</span>
+</div>
+
+<!-- HUD: BADGE -->
+<div class="mission-badge" id="mission-badge" style="display:none">
+  MISIÓN <span id="badge-num">1</span>/6
+</div>
+
+<!-- NAVE -->
+<div class="ship-container" id="ship-widget" style="display:none">
+  <svg viewBox="0 0 90 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="45" cy="52" rx="26" ry="36" fill="url(#bg1)"/>
+    <ellipse cx="45" cy="34" rx="14" ry="18" fill="url(#cg1)" opacity=".9"/>
+    <ellipse cx="40" cy="28" rx="5" ry="7" fill="rgba(255,255,255,.38)"/>
+    <path d="M19 62 L6 80 L24 72 Z" fill="#7B2FFF" opacity=".82"/>
+    <path d="M71 62 L84 80 L66 72 Z" fill="#7B2FFF" opacity=".82"/>
+    <rect x="38" y="50" width="14" height="3" rx="1.5" fill="#00C2CB" opacity=".75"/>
+    <rect x="38" y="57" width="14" height="2" rx="1" fill="#00C2CB" opacity=".38"/>
+    <ellipse cx="35" cy="84" rx="7" ry="5" fill="#1a1a2e"/>
+    <ellipse cx="55" cy="84" rx="7" ry="5" fill="#1a1a2e"/>
+    <ellipse cx="35" cy="86" rx="5" ry="3" fill="#00C2CB" class="engine-glow"/>
+    <ellipse cx="55" cy="86" rx="5" ry="3" fill="#7B2FFF" class="engine-glow"/>
+    <ellipse cx="35" cy="93" rx="4" ry="7" fill="url(#fl1)" opacity=".9"/>
+    <ellipse cx="55" cy="93" rx="4" ry="7" fill="url(#fl2)" opacity=".9"/>
+    <defs>
+      <radialGradient id="bg1" cx="40%" cy="30%">
+        <stop offset="0%" stop-color="#2D4A8A"/><stop offset="100%" stop-color="#0A1535"/>
+      </radialGradient>
+      <radialGradient id="cg1" cx="35%" cy="25%">
+        <stop offset="0%" stop-color="#80EEFF"/><stop offset="50%" stop-color="#00C2CB"/>
+        <stop offset="100%" stop-color="#007A80"/>
+      </radialGradient>
+      <linearGradient id="fl1" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#FFD700"/><stop offset="100%" stop-color="#FF6600" stop-opacity="0"/>
+      </linearGradient>
+      <linearGradient id="fl2" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#00C2CB"/><stop offset="100%" stop-color="#7B2FFF" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+  </svg>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     PORTADA
+     ══════════════════════════════════════════════════════ -->
+<div id="screen-intro" class="screen active">
+  <div class="content" style="gap:26px;text-align:center;padding-top:70px">
+    <div style="animation:shipFloat 3s ease-in-out infinite">
+      <svg width="120" height="148" viewBox="0 0 90 110" fill="none">
+        <ellipse cx="45" cy="52" rx="26" ry="36" fill="url(#bg2)"/>
+        <ellipse cx="45" cy="34" rx="14" ry="18" fill="url(#cg2)" opacity=".9"/>
+        <ellipse cx="40" cy="28" rx="5" ry="7" fill="rgba(255,255,255,.38)"/>
+        <path d="M19 62 L6 80 L24 72 Z" fill="#7B2FFF" opacity=".85"/>
+        <path d="M71 62 L84 80 L66 72 Z" fill="#7B2FFF" opacity=".85"/>
+        <rect x="38" y="50" width="14" height="3" rx="1.5" fill="#00C2CB" opacity=".8"/>
+        <ellipse cx="35" cy="84" rx="7" ry="5" fill="#1a1a2e"/>
+        <ellipse cx="55" cy="84" rx="7" ry="5" fill="#1a1a2e"/>
+        <ellipse cx="35" cy="86" rx="5" ry="3" fill="#00C2CB"/>
+        <ellipse cx="55" cy="86" rx="5" ry="3" fill="#7B2FFF"/>
+        <ellipse cx="35" cy="93" rx="4" ry="7" fill="url(#fl3)" opacity=".9"/>
+        <ellipse cx="55" cy="93" rx="4" ry="7" fill="url(#fl4)" opacity=".9"/>
+        <defs>
+          <radialGradient id="bg2" cx="40%" cy="30%">
+            <stop offset="0%" stop-color="#2D4A8A"/><stop offset="100%" stop-color="#0A1535"/>
+          </radialGradient>
+          <radialGradient id="cg2" cx="35%" cy="25%">
+            <stop offset="0%" stop-color="#80EEFF"/><stop offset="50%" stop-color="#00C2CB"/>
+            <stop offset="100%" stop-color="#007A80"/>
+          </radialGradient>
+          <linearGradient id="fl3" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#FFD700"/><stop offset="100%" stop-color="#FF6600" stop-opacity="0"/>
+          </linearGradient>
+          <linearGradient id="fl4" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#00C2CB"/><stop offset="100%" stop-color="#7B2FFF" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+    <h1 class="big-title">
+      <span class="line3">🔬 MISIÓN CIENTÍFICA 🔬</span>
+      <span class="line1">CÓDIGO</span>
+      <span class="line2">VITAL</span>
+    </h1>
+    <p class="subtitle">
+      <strong style="color:var(--gold)">Misión de Rescate del Cuerpo Humano</strong><br>
+      Año 2050 · Nave Científica · Exploración Interior
+    </p>
+    <button class="btn btn-primary" onclick="showScreen('screen-objetivos')" style="font-size:1.1rem;padding:15px 42px">
+      🚀 INICIAR MISIÓN
+    </button>
+    <p style="font-size:.72rem;color:rgba(248,249,250,.3);letter-spacing:2px;text-transform:uppercase">
+      Ciencias Naturales · 4° y 5° Grado
+    </p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     OBJETIVOS DE APRENDIZAJE
+     ══════════════════════════════════════════════════════ -->
+<div id="screen-objetivos" class="screen">
+  <div class="content" style="gap:20px;padding-top:32px;padding-bottom:36px">
+    <div style="text-align:center">
+      <div style="font-size:2.4rem;margin-bottom:6px">🎯</div>
+      <h2 style="font-family:'Orbitron',monospace;font-size:1.3rem;color:var(--gold);
+        letter-spacing:2px;margin-bottom:4px">OBJETIVOS DE LA MISIÓN</h2>
+      <p style="font-size:.78rem;color:rgba(248,249,250,.45);letter-spacing:2px;
+        text-transform:uppercase">¿Qué vas a aprender hoy?</p>
+    </div>
+
+    <div class="mission-card" style="max-width:680px">
+      <p style="font-size:.95rem;font-weight:700;color:var(--accent);text-align:center;
+        margin-bottom:16px">Al finalizar esta aventura podrás:</p>
+
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px">
+        <div class="obj-item">
+          <span class="obj-icon">🦴</span>
+          <p><strong>Identificar</strong> los principales órganos y funciones de los sistemas del cuerpo humano.</p>
+        </div>
+        <div class="obj-item">
+          <span class="obj-icon">🫁</span>
+          <p><strong>Comprender</strong> cómo los sistemas óseo, muscular, digestivo, respiratorio, circulatorio y nervioso trabajan en conjunto para mantenernos sanos.</p>
+        </div>
+        <div class="obj-item">
+          <span class="obj-icon">🧠</span>
+          <p><strong>Resolver</strong> desafíos científicos utilizando la observación, el análisis y el razonamiento.</p>
+        </div>
+        <div class="obj-item">
+          <span class="obj-icon">🚀</span>
+          <p><strong>Participar</strong> en una experiencia digital interactiva basada en el trabajo en equipo y la toma de decisiones.</p>
+        </div>
+      </div>
+
+      <div style="background:rgba(255,159,28,.07);border:1px solid rgba(255,159,28,.28);
+        border-radius:11px;padding:13px 16px;margin-bottom:18px;font-size:.85rem;
+        color:rgba(248,249,250,.8);line-height:1.6;text-align:center">
+        📝 <strong style="color:var(--orange)">Importante:</strong> Durante la misión obtendrás números secretos.
+        <br>¡Anótalos en tu cuaderno o bitácora de explorador! Los necesitarás al final.
+      </div>
+
+      <div style="text-align:center">
+        <button class="btn btn-accent" onclick="showScreen('screen-instrucciones')">
+          📋 VER INSTRUCCIONES →
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     INSTRUCCIONES / SITUACIÓN PROBLEMA
+     ══════════════════════════════════════════════════════ -->
+<div id="screen-instrucciones" class="screen">
+  <div class="content" style="gap:20px;padding-top:28px;padding-bottom:34px">
+    <h2 style="font-family:'Orbitron',monospace;font-size:1.35rem;color:var(--accent);
+      text-align:center;letter-spacing:2px">📋 SITUACIÓN DE EMERGENCIA</h2>
+
+    <div class="mission-card" style="max-width:720px">
+      <div style="background:rgba(255,68,102,.07);border:1px solid rgba(255,68,102,.28);
+        border-radius:12px;padding:15px 18px;margin-bottom:18px">
+        <p style="color:#FF4466;font-weight:800;font-size:.88rem;text-align:center;
+          margin-bottom:8px">⚠️ ALERTA BIOELÉCTRICA — NAVE CÓDIGO VITAL</p>
+        <p style="font-size:.88rem;line-height:1.72;color:rgba(248,249,250,.85)">
+          Año <strong style="color:var(--gold)">2050.</strong> Eres parte de un equipo de
+          jóvenes científicos que fue <strong>miniaturizado</strong> para explorar el cuerpo
+          humano a bordo de la nave <em style="color:var(--accent)">Código Vital</em>.
+          Durante la misión, una <strong>tormenta bioeléctrica</strong> dañó el sistema de
+          navegación y quedaron <strong>atrapados dentro del organismo</strong>.
+          <br><br>
+          La energía disminuye. Para escapar y salvar al paciente, deben recorrer los
+          <strong style="color:var(--gold)">6 sistemas del cuerpo humano</strong>,
+          resolver los desafíos científicos y recuperar el <strong>código maestro de 6 dígitos</strong>.
+        </p>
+      </div>
+
+      <p style="font-size:.88rem;font-weight:800;color:var(--accent);margin-bottom:12px;
+        text-align:center;letter-spacing:1px">🗺️ TU RUTA DE EXPLORACIÓN</p>
+
+      <div style="display:grid;gap:7px;margin-bottom:18px">
+        <div style="display:flex;align-items:center;gap:12px;background:rgba(200,160,80,.07);
+          border:1px solid rgba(200,160,80,.22);border-radius:9px;padding:9px 13px">
+          <span style="font-size:1.2rem">🦴</span>
+          <div style="flex:1;font-size:.88rem"><strong>Misión 1:</strong> Las Cavernas del Esqueleto</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;background:rgba(200,50,50,.07);
+          border:1px solid rgba(200,50,50,.22);border-radius:9px;padding:9px 13px">
+          <span style="font-size:1.2rem">💪</span>
+          <div style="flex:1;font-size:.88rem"><strong>Misión 2:</strong> El Túnel del Movimiento</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;background:rgba(100,180,50,.07);
+          border:1px solid rgba(100,180,50,.22);border-radius:9px;padding:9px 13px">
+          <span style="font-size:1.2rem">🍎</span>
+          <div style="flex:1;font-size:.88rem"><strong>Misión 3:</strong> La Estación de los Nutrientes</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;background:rgba(0,180,255,.07);
+          border:1px solid rgba(0,180,255,.22);border-radius:9px;padding:9px 13px">
+          <span style="font-size:1.2rem">🫁</span>
+          <div style="flex:1;font-size:.88rem"><strong>Misión 4:</strong> La Cámara del Oxígeno</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;background:rgba(220,30,70,.07);
+          border:1px solid rgba(220,30,70,.22);border-radius:9px;padding:9px 13px">
+          <span style="font-size:1.2rem">❤️</span>
+          <div style="flex:1;font-size:.88rem"><strong>Misión 5:</strong> La Autopista Sanguínea</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;background:rgba(100,0,255,.07);
+          border:1px solid rgba(100,0,255,.22);border-radius:9px;padding:9px 13px">
+          <span style="font-size:1.2rem">🧠</span>
+          <div style="flex:1;font-size:.88rem"><strong>Misión 6:</strong> El Centro de Control Cerebral</div>
+        </div>
+      </div>
+
+      <div style="background:rgba(122,229,130,.07);border:1px solid rgba(122,229,130,.22);
+        border-radius:10px;padding:12px 16px;font-size:.83rem;
+        color:rgba(248,249,250,.75);line-height:1.55;margin-bottom:18px;text-align:center">
+        🖊️ <strong style="color:var(--green)">Recuerda:</strong> En cada misión obtendrás un número secreto.
+        La computadora de la nave <em>no</em> lo guardará por ti.
+        <strong>Anótalo en tu bitácora de explorador.</strong>
+      </div>
+
+      <div style="text-align:center">
+        <button class="btn btn-green" onclick="startMissions()">
+          🔭 COMENZAR LA EXPLORACIÓN
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     MISIÓN 1 — LAS CAVERNAS DEL ESQUELETO
+     ══════════════════════════════════════════════════════ -->
+<div id="screen-m1" class="screen bg-oseo">
+  <div class="content" style="gap:16px;padding-top:88px;padding-bottom:28px">
+    <div class="progress-map" id="prog-m1"></div>
+    <div class="mission-card">
+      <span class="system-tag tag-oseo">🦴 Sistema Óseo</span>
+      <h2 class="mission-title">MISIÓN 1 — LAS CAVERNAS DEL ESQUELETO</h2>
+      <p class="mission-sub">Explorando las grandes cavernas de huesos</p>
+
+      <div class="mission-scenario scenario-oseo">
+        <p style="font-size:.88rem;line-height:1.7">
+          🦴 La nave Código Vital navega por enormes <strong>cuevas formadas por huesos</strong>.
+          Las paredes brillan con un tono marfil misterioso. El sensor de la nave indica:
+          <em style="color:#D4A04A">"Sistema Óseo detectado. Para avanzar debes demostrar
+          que conoces las partes y funciones del esqueleto."</em>
+        </p>
+      </div>
+
+      <div class="hint-box">
+        🔍 <strong>Pista científica:</strong> Los huesos cumplen varias funciones en nuestro cuerpo:
+        nos dan forma, nos ayudan a movernos, protegen órganos importantes como el corazón
+        y el cerebro, y producen células sanguíneas en su interior.
+      </div>
+
+      <p class="mission-question">
+        🔬 ¿Cuál de las siguientes <strong>NO</strong> es una función del sistema óseo?
+      </p>
+
+      <div class="options-grid" id="opts-m1">
+        <button class="option-btn" onclick="checkAnswer(1,this,false)">Proteger órganos internos</button>
+        <button class="option-btn" onclick="checkAnswer(1,this,false)">Dar forma y soporte al cuerpo</button>
+        <button class="option-btn" onclick="checkAnswer(1,this,true)">Digerir los alimentos</button>
+        <button class="option-btn" onclick="checkAnswer(1,this,false)">Producir células sanguíneas</button>
+      </div>
+
+      <div class="retro-box retro-ok" id="retro-ok-m1">
+        ✅ <strong>¡Excelente!</strong><br>
+        El sistema óseo <em>no</em> digiere alimentos — esa es la tarea del sistema digestivo.
+        Los huesos soportan el cuerpo, protegen órganos y producen células sanguíneas.
+        El cuerpo humano adulto tiene aproximadamente <strong>206 huesos</strong>.<br><br>
+        🔢 <strong>Tu número secreto:</strong> Toma el <strong>primer dígito</strong> de
+        <em>206</em> y anótalo en tu cuaderno. La computadora de la nave no lo guardará por ti.
+      </div>
+      <div class="retro-box retro-err" id="retro-err-m1">
+        ❌ <strong>Inténtalo nuevamente.</strong><br>
+        Piensa en la función que cumplen los huesos dentro de nuestro cuerpo.
+        ¿Cuál de esas opciones hace el sistema digestivo y <em>no</em> el sistema óseo?
+      </div>
+
+      <div style="text-align:center;display:none;margin-top:12px" id="next-m1">
+        <button class="btn btn-accent btn-sm" onclick="showScreen('screen-m2')">
+          💪 SIGUIENTE MISIÓN →
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     MISIÓN 2 — EL TÚNEL DEL MOVIMIENTO
+     ══════════════════════════════════════════════════════ -->
+<div id="screen-m2" class="screen bg-muscular">
+  <div class="content" style="gap:16px;padding-top:88px;padding-bottom:28px">
+    <div class="progress-map" id="prog-m2"></div>
+    <div class="mission-card">
+      <span class="system-tag tag-muscular">💪 Sistema Muscular</span>
+      <h2 class="mission-title">MISIÓN 2 — EL TÚNEL DEL MOVIMIENTO</h2>
+      <p class="mission-sub">A través de los corredores de fibras musculares</p>
+
+      <div class="mission-scenario scenario-muscular">
+        <p style="font-size:.88rem;line-height:1.7">
+          💪 La nave atraviesa <strong>túneles pulsantes</strong> formados por miles de fibras
+          musculares. Algunas se mueven solo cuando las ordenamos; otras trabajan sin parar,
+          aunque no lo notemos. El sensor muscular parpadea:
+          <em style="color:#FF7070">"Clasifica los tipos de músculo para continuar."</em>
+        </p>
+      </div>
+
+      <div class="hint-box">
+        🔍 <strong>Pista científica:</strong> Algunos músculos los controlamos voluntariamente,
+        como cuando levantamos un brazo. Otros trabajan solos todo el tiempo, como el corazón,
+        que nunca descansa desde que nacemos.
+      </div>
+
+      <p class="mission-question">
+        🔬 ¿Cuál de estos músculos trabaja <strong>durante toda la vida</strong> sin que tengamos que pensar en moverlo?
+      </p>
+
+      <div class="options-grid" id="opts-m2">
+        <button class="option-btn" onclick="checkAnswer(2,this,false)">Bíceps</button>
+        <button class="option-btn" onclick="checkAnswer(2,this,false)">Cuádriceps</button>
+        <button class="option-btn" onclick="checkAnswer(2,this,true)">Músculo cardíaco</button>
+        <button class="option-btn" onclick="checkAnswer(2,this,false)">Trapecio</button>
+      </div>
+
+      <div class="retro-box retro-ok" id="retro-ok-m2">
+        ✅ <strong>¡Muy bien!</strong><br>
+        El <strong>músculo cardíaco</strong> es el corazón y late sin parar toda la vida sin
+        que tengamos que pensar en él. Nuestro cuerpo tiene
+        <strong>tres tipos de músculos:</strong>
+        los <em>esqueléticos</em> (movimiento voluntario), los <em>lisos</em> (órganos internos)
+        y el <em>cardíaco</em> (el corazón).<br><br>
+        🔢 <strong>Tu número secreto:</strong> El número de tipos de músculos es tu código.
+        ¡Anótalo en tu cuaderno antes de continuar!
+      </div>
+      <div class="retro-box retro-err" id="retro-err-m2">
+        ❌ <strong>Observa nuevamente.</strong><br>
+        Algunos músculos los movemos voluntariamente y otros trabajan sin que lo notemos.
+        ¿Cuál de estas opciones late sin parar desde que nacemos?
+      </div>
+
+      <div style="text-align:center;display:none;margin-top:12px" id="next-m2">
+        <button class="btn btn-accent btn-sm" onclick="showScreen('screen-m3')">
+          🍎 SIGUIENTE MISIÓN →
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     MISIÓN 3 — LA ESTACIÓN DE LOS NUTRIENTES
+     ══════════════════════════════════════════════════════ -->
+<div id="screen-m3" class="screen bg-digestivo">
+  <div class="content" style="gap:16px;padding-top:88px;padding-bottom:28px">
+    <div class="progress-map" id="prog-m3"></div>
+    <div class="mission-card">
+      <span class="system-tag tag-digestivo">🍎 Sistema Digestivo</span>
+      <h2 class="mission-title">MISIÓN 3 — LA ESTACIÓN DE LOS NUTRIENTES</h2>
+      <p class="mission-sub">Siguiendo el camino de los alimentos</p>
+
+      <div class="mission-scenario scenario-digestivo">
+        <p style="font-size:.88rem;line-height:1.7">
+          🍎 La nave flota sobre <strong>ríos dorados de nutrientes</strong>. Los alimentos
+          viajan por distintas estaciones hasta convertirse en energía para las células.
+          El sistema indica: <em style="color:#90D040">"Debes conocer bien el camino que
+          hacen los alimentos para obtener tu código."</em>
+        </p>
+      </div>
+
+      <div class="hint-box">
+        🔍 <strong>Pista científica:</strong> El recorrido de los alimentos comienza en la boca
+        y termina en el intestino grueso. En cada parada, el cuerpo extrae lo que necesita para
+        crecer y obtener energía. La mayor absorción de nutrientes ocurre en el intestino delgado.
+      </div>
+
+      <p class="mission-question">
+        🔬 ¿En qué parte del cuerpo ocurre la <strong>mayor absorción de nutrientes</strong> que necesitamos para crecer y tener energía?
+      </p>
+
+      <div class="options-grid" id="opts-m3">
+        <button class="option-btn" onclick="checkAnswer(3,this,false)">Boca</button>
+        <button class="option-btn" onclick="checkAnswer(3,this,false)">Estómago</button>
+        <button class="option-btn" onclick="checkAnswer(3,this,true)">Intestino delgado</button>
+        <button class="option-btn" onclick="checkAnswer(3,this,false)">Esófago</button>
+      </div>
+
+      <div class="retro-box retro-ok" id="retro-ok-m3">
+        ✅ <strong>¡Excelente!</strong><br>
+        El <strong>intestino delgado</strong> es donde la mayor parte de los nutrientes pasan
+        a la sangre para alimentar todas las células del cuerpo. El sistema digestivo transforma
+        los alimentos en energía que nuestro cuerpo necesita para crecer y mantenerse saludable.<br><br>
+        El recorrido principal de los alimentos incluye <strong>5 partes:</strong>
+        Boca → Esófago → Estómago → Intestino delgado → Intestino grueso.<br><br>
+        🔢 <strong>Tu número secreto:</strong> Cuenta esas partes y anota el resultado en tu cuaderno.
+        ¡Recuerda guardarlo para el final!
+      </div>
+      <div class="retro-box retro-err" id="retro-err-m3">
+        ❌ <strong>Piensa en el recorrido.</strong><br>
+        Los alimentos hacen un largo camino desde la boca hasta el intestino.
+        ¿En cuál de esas paradas se absorbe la mayor cantidad de nutrientes?
+      </div>
+
+      <div style="text-align:center;display:none;margin-top:12px" id="next-m3">
+        <button class="btn btn-accent btn-sm" onclick="showScreen('screen-m4')">
+          🫁 SIGUIENTE MISIÓN →
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     MISIÓN 4 — LA CÁMARA DEL OXÍGENO
+     ══════════════════════════════════════════════════════ -->
+<div id="screen-m4" class="screen bg-respiratorio">
+  <div class="content" style="gap:16px;padding-top:88px;padding-bottom:28px">
+    <div class="progress-map" id="prog-m4"></div>
+    <div class="mission-card">
+      <span class="system-tag tag-respiratorio">🫁 Sistema Respiratorio</span>
+      <h2 class="mission-title">MISIÓN 4 — LA CÁMARA DEL OXÍGENO</h2>
+      <p class="mission-sub">En los alvéolos gigantes del pulmón</p>
+
+      <div class="mission-scenario scenario-respiratorio">
+        <p style="font-size:.88rem;line-height:1.7">
+          🫁 La nave navega entre <strong>enormes sacos de aire</strong> que se expanden y se
+          encogen. Corrientes de oxígeno de color azul celeste circulan a gran velocidad.
+          El sensor respiratorio anuncia:
+          <em style="color:#60DFFF">"Detecta dónde ocurre el intercambio de oxígeno para desbloquear el código."</em>
+        </p>
+      </div>
+
+      <div class="hint-box">
+        🔍 <strong>Pista científica:</strong> Cuando respiramos, el aire llega a los pulmones
+        y pasa por unos pequeños sacos llamados <strong>alvéolos</strong>. Allí, el oxígeno
+        entra a la sangre y el dióxido de carbono (el gas que desechamos) sale del cuerpo.
+      </div>
+
+      <p class="mission-question">
+        🔬 ¿En qué parte de los pulmones ocurre el <strong>intercambio de oxígeno</strong> que nuestro cuerpo necesita?
+      </p>
+
+      <div class="options-grid" id="opts-m4">
+        <button class="option-btn" onclick="checkAnswer(4,this,false)">Bronquios</button>
+        <button class="option-btn" onclick="checkAnswer(4,this,false)">Tráquea</button>
+        <button class="option-btn" onclick="checkAnswer(4,this,true)">Alvéolos</button>
+        <button class="option-btn" onclick="checkAnswer(4,this,false)">Diafragma</button>
+      </div>
+
+      <div class="retro-box retro-ok" id="retro-ok-m4">
+        ✅ <strong>¡Muy bien!</strong><br>
+        Los <strong>alvéolos</strong> son pequeños sacos al final de los pulmones donde el
+        oxígeno pasa a la sangre y el dióxido de carbono sale del cuerpo.
+        Los pulmones trabajan junto con otras partes del cuerpo para llevar oxígeno a cada célula.<br><br>
+        Una persona sana tiene <strong>2 pulmones</strong>: el derecho con 3 partes
+        y el izquierdo con 2, dejando espacio para el corazón.<br><br>
+        🔢 <strong>Tu número secreto:</strong> El número de pulmones es tu código.
+        Anótalo en tu cuaderno antes de continuar.
+      </div>
+      <div class="retro-box retro-err" id="retro-err-m4">
+        ❌ <strong>Recuerda cómo respiramos.</strong><br>
+        El aire entra, baja por la tráquea y los bronquios, hasta llegar a unas pequeñas
+        bolsitas al final. ¿Cómo se llaman esas bolsitas donde el oxígeno entra a la sangre?
+      </div>
+
+      <div style="text-align:center;display:none;margin-top:12px" id="next-m4">
+        <button class="btn btn-accent btn-sm" onclick="showScreen('screen-m5')">
+          ❤️ SIGUIENTE MISIÓN →
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     MISIÓN 5 — LA AUTOPISTA SANGUÍNEA
+     ══════════════════════════════════════════════════════ -->
+<div id="screen-m5" class="screen bg-circulatorio">
+  <div class="content" style="gap:16px;padding-top:88px;padding-bottom:28px">
+    <div class="progress-map" id="prog-m5"></div>
+    <div class="mission-card">
+      <span class="system-tag tag-circulatorio">❤️ Sistema Circulatorio</span>
+      <h2 class="mission-title">MISIÓN 5 — LA AUTOPISTA SANGUÍNEA</h2>
+      <p class="mission-sub">Entre glóbulos rojos y vasos sanguíneos</p>
+
+      <div class="mission-scenario scenario-circulatorio">
+        <p style="font-size:.88rem;line-height:1.7">
+          ❤️ La nave está atrapada en una <strong>autopista de sangre</strong>. Millones de
+          glóbulos rojos pasan a toda velocidad. El corazón retumba como un tambor gigante.
+          El monitor cardíaco alerta:
+          <em style="color:#FF6090">"Para liberar el siguiente código debes entender cómo
+          viaja la sangre por nuestro organismo."</em>
+        </p>
+      </div>
+
+      <div class="hint-box">
+        🔍 <strong>Pista científica:</strong> Las <strong>arterias</strong> llevan sangre desde
+        el corazón hacia el resto del cuerpo, y las <strong>venas</strong> la devuelven.
+        Las arterias tienen paredes más gruesas porque reciben la fuerza directa del corazón
+        al bombear la sangre.
+      </div>
+
+      <p class="mission-question">
+        🔬 ¿Por qué las arterias tienen <strong>paredes más gruesas</strong> que las venas?
+      </p>
+
+      <div class="options-grid" id="opts-m5">
+        <button class="option-btn" onclick="checkAnswer(5,this,true)">Porque transportan sangre a mayor presión</button>
+        <button class="option-btn" onclick="checkAnswer(5,this,false)">Porque almacenan sangre</button>
+        <button class="option-btn" onclick="checkAnswer(5,this,false)">Porque producen glóbulos rojos</button>
+        <button class="option-btn" onclick="checkAnswer(5,this,false)">Porque están conectadas al estómago</button>
+      </div>
+
+      <div class="retro-box retro-ok" id="retro-ok-m5">
+        ✅ <strong>¡Fantástico!</strong><br>
+        Las arterias tienen paredes más gruesas porque reciben la sangre directamente del
+        corazón con mucha fuerza. El corazón funciona como una gran bomba que impulsa
+        la sangre por todo el cuerpo.<br><br>
+        El corazón tiene <strong>4 cámaras o cavidades</strong>: aurícula derecha,
+        ventrículo derecho, aurícula izquierda y ventrículo izquierdo.
+        Cada una cumple una función en el camino de la sangre.<br><br>
+        🔢 <strong>Tu número secreto:</strong> El número de cavidades del corazón es tu código.
+        ¡Anótalo en tu cuaderno!
+      </div>
+      <div class="retro-box retro-err" id="retro-err-m5">
+        ❌ <strong>Observa nuevamente.</strong><br>
+        Piensa en cómo viaja la sangre desde el corazón.
+        ¿Qué necesitan las arterias para aguantar la fuerza con que el corazón empuja la sangre?
+      </div>
+
+      <div style="text-align:center;display:none;margin-top:12px" id="next-m5">
+        <button class="btn btn-accent btn-sm" onclick="showScreen('screen-m6')">
+          🧠 ÚLTIMA MISIÓN →
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     MISIÓN 6 — EL CENTRO DE CONTROL CEREBRAL
+     ══════════════════════════════════════════════════════ -->
+<div id="screen-m6" class="screen bg-nervioso">
+  <div class="content" style="gap:16px;padding-top:88px;padding-bottom:28px">
+    <div class="progress-map" id="prog-m6"></div>
+    <div class="mission-card">
+      <span class="system-tag tag-nervioso">🧠 Sistema Nervioso</span>
+      <h2 class="mission-title">MISIÓN 6 — EL CENTRO DE CONTROL CEREBRAL</h2>
+      <p class="mission-sub">El gran comando que dirige todo el cuerpo</p>
+
+      <div class="mission-scenario scenario-nervioso">
+        <p style="font-size:.88rem;line-height:1.7">
+          🧠 La nave ingresa al <strong>Centro de Control Neuronal</strong>. Millones de
+          neuronas luminosas parpadean como estrellas. Señales eléctricas viajan a gran
+          velocidad por todas partes. La IA de la nave proclama:
+          <em style="color:#C070FF">"Has llegado al órgano que controla todo.
+          El último código aguarda. ¡Demuestra que lo conoces!"</em>
+        </p>
+      </div>
+
+      <div class="hint-box">
+        🔍 <strong>Pista científica:</strong> El sistema nervioso envía mensajes por todo el
+        cuerpo para que podamos movernos, sentir, pensar y reaccionar. Tiene un órgano
+        principal que coordina todo lo que hacemos, pensamos y sentimos.
+      </div>
+
+      <p class="mission-question">
+        🔬 ¿Qué órgano <strong>envía mensajes y coordina</strong> lo que pensamos, sentimos y hacemos?
+      </p>
+
+      <div class="options-grid" id="opts-m6">
+        <button class="option-btn" onclick="checkAnswer(6,this,false)">Médula espinal</button>
+        <button class="option-btn" onclick="checkAnswer(6,this,true)">Cerebro</button>
+        <button class="option-btn" onclick="checkAnswer(6,this,false)">Nervios</button>
+        <button class="option-btn" onclick="checkAnswer(6,this,false)">Cerebelo</button>
+      </div>
+
+      <div class="retro-box retro-ok" id="retro-ok-m6">
+        ✅ <strong>¡Excelente!</strong><br>
+        El <strong>cerebro</strong> es el órgano principal del sistema nervioso y coordina
+        pensamientos, movimientos y emociones. Trabaja en equipo con la médula espinal
+        y los nervios para controlar todo el cuerpo.<br><br>
+        🔢 <strong>Tu último número secreto:</strong> Ahora cuenta las letras de la palabra:
+      </div>
+      <div class="retro-box retro-err" id="retro-err-m6">
+        ❌ <strong>Recuerda qué órgano envía mensajes.</strong><br>
+        ¿Cuál es el órgano que coordina todas las funciones del cuerpo y nos permite
+        pensar, sentir y movernos?
+      </div>
+
+      <div style="margin-top:12px;display:none" id="extra-m6">
+        <p style="text-align:center;font-size:.9rem;color:#C070FF;margin-bottom:8px;font-weight:700">
+          Cuenta las letras de <strong style="color:white;font-family:'Orbitron',monospace">C-E-R-E-B-R-O</strong>:
+        </p>
+        <div class="letter-counter" id="letter-counter"></div>
+        <p style="text-align:center;font-size:.85rem;color:rgba(248,249,250,.7);margin-top:8px">
+          Total: <strong style="color:var(--gold);font-family:'Orbitron',monospace;font-size:1.1rem"
+          id="letter-count">0</strong> letras
+        </p>
+        <div style="background:rgba(255,159,28,.08);border:1.5px solid rgba(255,159,28,.32);
+          border-radius:11px;padding:12px 16px;font-size:.85rem;color:rgba(255,159,28,.95);
+          line-height:1.55;margin-top:10px;text-align:center">
+          🖊️ <strong>Anota ese número en tu cuaderno.</strong><br>
+          Recuerda guardar cada número para poder regresar al laboratorio.
+        </div>
+      </div>
+
+      <div style="text-align:center;display:none;margin-top:14px" id="next-m6">
+        <button class="btn btn-gold" onclick="showScreen('screen-escape')">
+          🚪 IR AL ESCAPE FINAL ✨
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     SALA FINAL DE ESCAPE
+     ══════════════════════════════════════════════════════ -->
+<div id="screen-escape" class="screen">
+  <div class="content" style="gap:22px;padding-top:78px;padding-bottom:38px">
+    <h2 style="font-family:'Orbitron',monospace;font-size:1.25rem;color:var(--accent);
+      text-align:center;letter-spacing:2px">🚪 SALA FINAL DE ESCAPE</h2>
+
+    <div class="portal-door" id="portal-door">
+      <div class="portal-door-inner">
+        <div class="portal-grill">
+          <div class="portal-grill-bar"></div><div class="portal-grill-bar"></div>
+          <div class="portal-grill-bar"></div><div class="portal-grill-bar"></div>
+          <div class="portal-grill-bar"></div>
+        </div>
+      </div>
+      <div style="position:absolute;bottom:18px;left:50%;transform:translateX(-50%)">
+        <svg width="44" height="44" viewBox="0 0 44 44">
+          <rect x="6" y="20" width="32" height="20" rx="4" fill="#7B2FFF" opacity=".8"/>
+          <path d="M13 20 V14 A9 9 0 0 1 31 14 V20" fill="none" stroke="#00C2CB"
+            stroke-width="3" stroke-linecap="round"/>
+          <circle cx="22" cy="30" r="3" fill="#FFD700"/>
+          <line x1="22" y1="30" x2="22" y2="36" stroke="#FFD700" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="mission-card" style="max-width:520px">
+      <p style="text-align:center;font-size:.9rem;color:rgba(248,249,250,.82);
+        margin-bottom:6px;line-height:1.65">
+        Has completado las 6 misiones del cuerpo humano.<br>
+        <strong style="color:var(--accent)">Ingresa el código de 6 dígitos</strong>
+        que anotaste en tu cuaderno durante la aventura.
+      </p>
+      <p style="text-align:center;font-size:.76rem;color:rgba(248,249,250,.38);
+        margin-bottom:16px;letter-spacing:1px">
+        📝 Revisa tu bitácora de explorador con los 6 números
+      </p>
+
+      <div class="code-input-row">
+        <input class="code-digit-input" id="ci0" maxlength="1" type="text" inputmode="numeric"
+          oninput="moveNext(this,'ci1')" onkeydown="movePrev(event,this,'')"/>
+        <input class="code-digit-input" id="ci1" maxlength="1" type="text" inputmode="numeric"
+          oninput="moveNext(this,'ci2')" onkeydown="movePrev(event,this,'ci0')"/>
+        <input class="code-digit-input" id="ci2" maxlength="1" type="text" inputmode="numeric"
+          oninput="moveNext(this,'ci3')" onkeydown="movePrev(event,this,'ci1')"/>
+        <input class="code-digit-input" id="ci3" maxlength="1" type="text" inputmode="numeric"
+          oninput="moveNext(this,'ci4')" onkeydown="movePrev(event,this,'ci2')"/>
+        <input class="code-digit-input" id="ci4" maxlength="1" type="text" inputmode="numeric"
+          oninput="moveNext(this,'ci5')" onkeydown="movePrev(event,this,'ci3')"/>
+        <input class="code-digit-input" id="ci5" maxlength="1" type="text" inputmode="numeric"
+          oninput="moveNext(this,'')"   onkeydown="movePrev(event,this,'ci4')"/>
+      </div>
+
+      <div class="feedback" id="fb-escape"></div>
+
+      <div style="text-align:center;margin-top:6px">
+        <button class="btn btn-gold" onclick="checkEscape()">
+          🔓 ACTIVAR CÓDIGO MAESTRO
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     PANTALLA VICTORIA
+     ══════════════════════════════════════════════════════ -->
+<div id="screen-win" class="screen">
+  <div class="content" style="gap:20px;padding:28px 18px">
+    <div style="text-align:center">
+      <div style="font-size:3rem;margin-bottom:6px;animation:sealPulse 2s infinite">🏆</div>
+      <h1 style="font-family:'Orbitron',monospace;font-size:1.35rem;color:var(--green);
+        letter-spacing:2px;text-shadow:0 0 28px rgba(122,229,130,.48);margin-bottom:8px">
+        GUARDIÁN DEL CUERPO HUMANO
+      </h1>
+      <p style="color:rgba(248,249,250,.82);font-size:.93rem;max-width:480px;
+        margin:0 auto 6px;line-height:1.65">
+        <strong style="color:var(--gold)">¡Felicitaciones!</strong><br>
+        Has completado la misión, restaurado el funcionamiento del cuerpo humano
+        y regresado al laboratorio con éxito.
+      </p>
+      <p style="color:rgba(248,249,250,.62);font-size:.88rem;max-width:440px;
+        margin:0 auto;line-height:1.6">
+        Nuestro cuerpo es un sistema maravilloso donde todos los órganos trabajan
+        juntos para mantenernos sanos y fuertes.<br>
+        <strong style="color:var(--accent)">¡Sigue explorando la ciencia y cuidando tu salud!</strong>
+      </p>
+    </div>
+
+    <!-- DIPLOMA -->
+    <div class="diploma">
+      <div class="diploma-seal">🏅</div>
+      <div class="diploma-title">CERTIFICADO DE HONOR</div>
+      <div style="font-size:.7rem;color:rgba(255,215,0,.55);margin-bottom:10px;letter-spacing:2px">
+        CIENCIAS NATURALES · MISIÓN ESPECIAL 2050
+      </div>
+
+      <p style="font-size:.8rem;color:rgba(255,215,0,.65);margin-bottom:4px">Este diploma certifica que:</p>
+      <input class="diploma-name-input" id="student-name" type="text"
+        placeholder="✏️ Escribe aquí tu nombre"
+        maxlength="40" autocomplete="off"/>
+
+      <div style="background:rgba(255,215,0,.07);border:1px solid rgba(255,215,0,.22);
+        border-radius:9px;padding:11px;margin-bottom:13px">
+        <p style="font-size:.78rem;color:rgba(255,215,0,.65);margin-bottom:5px">Ha demostrado conocimiento de:</p>
+        <p style="font-size:.82rem;color:rgba(255,255,255,.9);line-height:1.72">
+          🦴 Sistema Óseo · 💪 Sistema Muscular<br>
+          🍎 Sistema Digestivo · 🫁 Sistema Respiratorio<br>
+          ❤️ Sistema Circulatorio · 🧠 Sistema Nervioso
+        </p>
+      </div>
+
+      <div style="font-family:'Orbitron',monospace;font-size:1.05rem;font-weight:900;
+        color:var(--white);margin-bottom:8px;
+        text-shadow:0 0 18px rgba(255,215,0,.45)">
+        INSIGNIA DE EXPLORADOR CIENTÍFICO 🔬
+      </div>
+
+      <div class="diploma-text">
+        Por haber completado exitosamente la<br>
+        <strong>MISIÓN DE RESCATE DEL CUERPO HUMANO</strong><br>
+        a bordo de la nave científica <em>Código Vital</em><br>
+        Año 2050 · Laboratorio de Exploración Corporal
+      </div>
+
+      <div class="diploma-stars">⭐⭐⭐⭐⭐</div>
+    </div>
+
+    <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
+      <button class="btn btn-primary btn-sm" onclick="window.print()">🖨️ IMPRIMIR DIPLOMA</button>
+      <button class="btn btn-sm" onclick="resetGame()"
+        style="background:rgba(0,194,203,.09);border:1.5px solid rgba(0,194,203,.28);color:var(--accent)">
+        🔄 JUGAR DE NUEVO
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     JAVASCRIPT
+     ══════════════════════════════════════════════════════ -->
+<script>
+/* ── ESTADO ────────────────────────────────────────────── */
+const CORRECT_CODE = '235247';
+const state = { completed: [], energy: 100 };
+
+const MISSIONS = [
+  {id:1,emoji:'🦴',label:'Óseo',       screen:'screen-m1'},
+  {id:2,emoji:'💪',label:'Muscular',   screen:'screen-m2'},
+  {id:3,emoji:'🍎',label:'Digestivo',  screen:'screen-m3'},
+  {id:4,emoji:'🫁',label:'Respiratorio',screen:'screen-m4'},
+  {id:5,emoji:'❤️',label:'Circulatorio',screen:'screen-m5'},
+  {id:6,emoji:'🧠',label:'Nervioso',   screen:'screen-m6'},
+];
+
+/* ── FONDO ─────────────────────────────────────────────── */
+(function initBg(){
+  const sf = document.getElementById('starfield');
+  for(let i=0;i<80;i++){
+    const s=document.createElement('div'); s.className='star';
+    const sz=Math.random()*2.4+.5;
+    s.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;
+      top:${Math.random()*100}%;--d:${(Math.random()*3+1.5).toFixed(1)}s;
+      --dl:${(Math.random()*4).toFixed(1)}s`;
+    sf.appendChild(s);
+  }
+  const pc=document.getElementById('particles');
+  const cols=['#00C2CB','#7B2FFF','#7AE582','#FFD700','#FF4466'];
+  for(let i=0;i<18;i++){
+    const p=document.createElement('div'); p.className='particle';
+    const sz=Math.random()*5+2;
+    p.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;
+      background:${cols[Math.floor(Math.random()*cols.length)]};
+      --dur:${(Math.random()*8+6).toFixed(1)}s;--del:${(Math.random()*10).toFixed(1)}s`;
+    pc.appendChild(p);
+  }
+})();
+
+/* ── NAVEGACIÓN ────────────────────────────────────────── */
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const t=document.getElementById(id);
+  if(t){t.classList.add('active');window.scrollTo(0,0);}
+  MISSIONS.forEach(m=>{
+    const pm=document.getElementById(`prog-m${m.id}`);
+    if(pm) renderProgressMap(pm,m.id);
+  });
+}
+
+/* ── INICIO ────────────────────────────────────────────── */
+function startMissions(){
+  document.getElementById('energy-bar').style.display='flex';
+  document.getElementById('mission-badge').style.display='block';
+  document.getElementById('ship-widget').style.display='block';
+  showScreen('screen-m1');
+  updateBadge(1);
+}
+
+/* ── MAPA DE PROGRESO ──────────────────────────────────── */
+function renderProgressMap(container,currentMission){
+  container.innerHTML=MISSIONS.map(m=>{
+    const done=state.completed.includes(m.id);
+    const cur=m.id===currentMission&&!done;
+    return `<div class="prog-step">
+      <div class="prog-dot ${done?'done':''} ${cur?'current':''}">${m.emoji}</div>
+      <div class="prog-label">${m.label}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ── BADGE ─────────────────────────────────────────────── */
+function updateBadge(n){document.getElementById('badge-num').textContent=n}
+
+/* ── ENERGÍA ───────────────────────────────────────────── */
+function drainEnergy(by){
+  state.energy=Math.max(0,state.energy-by);
+  const fill=document.getElementById('energy-fill');
+  document.getElementById('energy-pct').textContent=state.energy+'%';
+  fill.style.width=state.energy+'%';
+  if(state.energy<=33){
+    fill.style.background='linear-gradient(90deg,#FF4466,#FF9F1C)';
+    fill.style.boxShadow='0 0 10px rgba(255,68,102,.55)';
+  } else if(state.energy<=66){
+    fill.style.background='linear-gradient(90deg,#FFD700,#00C2CB)';
+    fill.style.boxShadow='0 0 10px rgba(255,215,0,.4)';
+  }
+}
+function rechargeEnergy(){
+  state.energy=Math.min(100,state.energy+14);
+  const fill=document.getElementById('energy-fill');
+  fill.style.width=state.energy+'%';
+  fill.style.background='linear-gradient(90deg,var(--green),var(--accent))';
+  fill.style.boxShadow='0 0 10px var(--green)';
+  document.getElementById('energy-pct').textContent=state.energy+'%';
+}
+
+/* ── VERIFICAR RESPUESTA ───────────────────────────────── */
+function checkAnswer(mNum,btn,isCorrect){
+  const opts=document.getElementById(`opts-m${mNum}`);
+  if(!opts||btn.disabled) return;
+  opts.querySelectorAll('.option-btn').forEach(b=>b.disabled=true);
+
+  const okBox =document.getElementById(`retro-ok-m${mNum}`);
+  const errBox=document.getElementById(`retro-err-m${mNum}`);
+  const nextEl=document.getElementById(`next-m${mNum}`);
+
+  if(isCorrect){
+    btn.classList.add('correct');
+    if(!state.completed.includes(mNum)) state.completed.push(mNum);
+    rechargeEnergy();
+    updateBadge(Math.min(mNum+1,6));
+
+    if(okBox){okBox.classList.add('visible')}
+
+    // Extra para M6
+    if(mNum===6){
+      setTimeout(()=>{
+        const ex=document.getElementById('extra-m6');
+        if(ex) ex.style.display='block';
+        animateLetterCounter();
+      },600);
+    }
+
+    setTimeout(()=>{if(nextEl) nextEl.style.display='block'},
+      mNum===6 ? 3000 : 1400);
+    playBeep('success');
+
+  } else {
+    btn.classList.add('wrong');
+    if(errBox){errBox.classList.add('visible')}
+    drainEnergy(8);
+
+    // Re-habilitar con delay
+    setTimeout(()=>{
+      opts.querySelectorAll('.option-btn').forEach(b=>{
+        if(!b.classList.contains('correct')){
+          b.disabled=false; b.classList.remove('wrong');
+        }
+      });
+      if(errBox) errBox.classList.remove('visible');
+    },2200);
+    playBeep('error');
+  }
+}
+
+/* ── ANIMACIÓN LETRAS M6 ───────────────────────────────── */
+function animateLetterCounter(){
+  const word='CEREBRO';
+  const container=document.getElementById('letter-counter');
+  const countEl=document.getElementById('letter-count');
+  if(!container) return;
+  container.innerHTML=word.split('').map((l,i)=>`
+    <div class="letter-box" id="lb${i}">${l}<span class="letter-num">${i+1}</span></div>
+  `).join('');
+  let i=0;
+  const t=setInterval(()=>{
+    const lb=document.getElementById(`lb${i}`);
+    if(lb) lb.classList.add('highlight');
+    i++; if(countEl) countEl.textContent=i;
+    if(i>=word.length) clearInterval(t);
+  },280);
+}
+
+/* ── SALA ESCAPE ───────────────────────────────────────── */
+function moveNext(input,nextId){
+  input.value=input.value.replace(/[^0-9]/g,'').slice(-1);
+  if(input.value&&nextId){const n=document.getElementById(nextId);if(n) n.focus();}
+}
+function movePrev(e,input,prevId){
+  if(e.key==='Backspace'&&!input.value&&prevId){
+    const p=document.getElementById(prevId);if(p){p.focus();p.value='';}
+  }
+}
+function checkEscape(){
+  const digits=['ci0','ci1','ci2','ci3','ci4','ci5']
+    .map(id=>document.getElementById(id).value).join('');
+  const fb=document.getElementById('fb-escape');
+
+  if(digits===CORRECT_CODE){
+    fb.className='feedback success';
+    fb.innerHTML='✅ ¡CÓDIGO CORRECTO! Activando puerta de escape…';
+    setTimeout(()=>{
+      document.getElementById('portal-door').classList.add('open');
+      playBeep('win'); launchConfetti();
+    },600);
+    setTimeout(()=>showScreen('screen-win'),2200);
+  } else if(digits.length<6){
+    fb.className='feedback error';
+    fb.innerHTML='⚠️ Ingresa los 6 dígitos del código maestro.';
+    playBeep('error');
+  } else {
+    fb.className='feedback error';
+    fb.innerHTML=`❌ Código incorrecto. Revisa los 6 números que anotaste en tu cuaderno e inténtalo de nuevo.`;
+    drainEnergy(10);
+    ['ci0','ci1','ci2','ci3','ci4','ci5'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el){el.style.animation='shake .4s ease';setTimeout(()=>el.style.animation='',500);}
+    });
+    playBeep('error');
+  }
+}
+
+/* ── CONFETI ───────────────────────────────────────────── */
+function launchConfetti(){
+  const cols=['#FFD700','#00C2CB','#7B2FFF','#7AE582','#FF4466','#FF9F1C','#ffffff'];
+  for(let i=0;i<90;i++){
+    const el=document.createElement('div'); el.className='confetti-piece';
+    el.style.cssText=`left:${Math.random()*100}vw;
+      background:${cols[Math.floor(Math.random()*cols.length)]};
+      --dur:${(Math.random()*2+2.5).toFixed(1)}s;
+      --del:${(Math.random()*1.5).toFixed(1)}s;
+      transform:rotate(${Math.random()*360}deg);
+      border-radius:${Math.random()>.5?'50%':'2px'}`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),5000);
+  }
+}
+
+/* ── AUDIO ─────────────────────────────────────────────── */
+let audioCtx=null;
+function getACtx(){
+  if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  return audioCtx;
+}
+function playBeep(type){
+  try{
+    const ctx=getACtx(), g=ctx.createGain(); g.connect(ctx.destination);
+    if(type==='success'){
+      pNote(ctx,g,523,0,.12); pNote(ctx,g,659,.13,.12); pNote(ctx,g,784,.26,.2);
+    } else if(type==='error'){
+      pNote(ctx,g,200,0,.08,'sawtooth'); pNote(ctx,g,150,.09,.15,'sawtooth');
+    } else if(type==='win'){
+      [523,659,784,1047].forEach((f,i)=>pNote(ctx,g,f,i*.15,.25));
+    }
+  } catch(e){}
+}
+function pNote(ctx,g,freq,delay,dur,type='sine'){
+  const o=ctx.createOscillator(), gn=ctx.createGain();
+  o.connect(gn); gn.connect(g); o.type=type; o.frequency.value=freq;
+  gn.gain.setValueAtTime(.17,ctx.currentTime+delay);
+  gn.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+delay+dur);
+  o.start(ctx.currentTime+delay); o.stop(ctx.currentTime+delay+dur+.05);
+}
+
+/* ── RESET ─────────────────────────────────────────────── */
+function resetGame(){
+  state.completed=[]; state.energy=100;
+
+  [1,2,3,4,5,6].forEach(m=>{
+    const opts=document.getElementById(`opts-m${m}`);
+    if(opts) opts.querySelectorAll('.option-btn').forEach(b=>{
+      b.disabled=false; b.classList.remove('correct','wrong');
+    });
+    const ok=document.getElementById(`retro-ok-m${m}`);
+    const err=document.getElementById(`retro-err-m${m}`);
+    if(ok) ok.classList.remove('visible');
+    if(err) err.classList.remove('visible');
+    const next=document.getElementById(`next-m${m}`);
+    if(next) next.style.display='none';
+  });
+
+  const ex6=document.getElementById('extra-m6');
+  if(ex6) ex6.style.display='none';
+  const lc=document.getElementById('letter-counter');
+  if(lc) lc.innerHTML='';
+  const lcnt=document.getElementById('letter-count');
+  if(lcnt) lcnt.textContent='0';
+
+  ['ci0','ci1','ci2','ci3','ci4','ci5'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+  const fbe=document.getElementById('fb-escape');
+  if(fbe){fbe.className='feedback';fbe.innerHTML='';}
+
+  const door=document.getElementById('portal-door');
+  if(door) door.classList.remove('open');
+
+  const fill=document.getElementById('energy-fill');
+  fill.style.width='100%';
+  fill.style.background='linear-gradient(90deg,var(--green),var(--accent))';
+  fill.style.boxShadow='0 0 10px var(--green)';
+  document.getElementById('energy-pct').textContent='100%';
+
+  document.getElementById('energy-bar').style.display='none';
+  document.getElementById('mission-badge').style.display='none';
+  document.getElementById('ship-widget').style.display='none';
+
+  const sn=document.getElementById('student-name');
+  if(sn) sn.value='';
+
+  showScreen('screen-intro');
+}
+</script>
+</body>
+</html>
